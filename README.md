@@ -1,54 +1,27 @@
-# py-mapzen-pelias
+# py-mapzen-gazetteer-export
 
-Simple Python wrapper for the Mapzen Pelias API
+Export tools for the Mapzen gazetteer
 
 ## Usage
 
-### Simple
+_Please write me_
 
-### Geocoding
+## Command line tools
 
-	import mapzen.pelias
-	api = mapzen.pelias.api()
+### mzg-concordify
 
-	method = 'search'
-	params = {'input':'brooklyn'}
+	$> /usr/local/bin/mzg-concordify -s /usr/local/mapzen/gaztteer -f 'mz:puid' -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv
 
-	rsp = api.execute_method(method, params)
+### mzg-exportify
 
-	print type(rsp)
-	<class 'geojson.feature.FeatureCollection'>	
+	$> /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
 
-### Reverse-geocoding
 
-	import mapzen.pelias
-	api = mapzen.pelias.api()
+Or this, if you're being thorough about things. Note the part where we are generating a concordances database (using `woeisthat-import`) from a concordances dump thar we are generating post-export. This suggests a separate wrapper tool to bundle all the things, but not today.
 
-	method = 'reverse'
-	params = {'lat': 37.775740, 'lon': -122.413595}
+	$> /usr/local/bin/woeisthat-import -d concordances-mzid-mzpuid.db -s csv concordances-mzid-mzpuid.csv
 
-	rsp = api.execute_method(method, params)
+	$> /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
 
-	print type(rsp)
-	<class 'geojson.feature.FeatureCollection'>	
+	$> /usr/local/bin/mzg-concordify -s /usr/local/mapzen/gaztteer -f 'mz:puid' -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv
 
-### Less simple
-
-#### Formatting results as Markdown
-
-_Important: This part is incomplete and may not even produce valid Markdown yet..._
-
-	import mapzen.pelias
-	api = mapzen.pelias.api()
-
-	method = 'search'
-	params = {'input':'brooklyn'}
-
-	rsp = api.execute_method(method, params)
-
-	fmt = mapzen.pelias.formatter(rsp)
-	fmt.markdown(sys.stdout)
-
-## See also
-
-* http://pelias.mapzen.com/
