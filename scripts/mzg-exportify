@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+import sys
+import os.path
+import geojson
+import logging
+import mapzen.gazetteer.export.simplegeo
+
+# sudo put me in mapze
+if __name__ == '__main__':
+    
+    import sys
+    import optparse
+
+    opt_parser = optparse.OptionParser()
+
+    opt_parser.add_option('-d', '--dest', dest='dest', action='store', default=None, help='Where to write export files')
+    opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='Source to export')
+    opt_parser.add_option('-c', '--concordances', dest='concordances', action='store', default=None, help='PUID <--> Mapzen ID lookup database')
+    opt_parser.add_option('--skip', dest='skip', action='store_true', default=False, help='Do not overwrite existing files (default is False)')
+
+    opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
+    options, args = opt_parser.parse_args()
+
+    if options.verbose:	
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    kwargs = {
+        'skip_existing': options.skip
+        }
+
+    if options.concordances:
+        kwargs['concordances'] = options.concordances
+
+    dest = os.path.abspath(options.dest)
+
+    if options.source == 'openvenues':
+        e = mapzen.gazetteer.export.openvenues.exporter(dest, **kwargs)
+    elif options.source == 'simplegeo':
+        e = mapzen.gazetteer.export.simplegeo.exporter(dest, **kwargs)
+    else:
+        logging.error("Unknown or invalid source to export")
+        sys.exit()
+
+    for file in args:
+
+        path = os.path.abspath(file)
+        fh = open(path, 'r')
+
+        for ln in fh.readlines():
+
+            ln = ln.strip()
+            data = geojson.loads(ln)
+
+            e.export_feature(data)

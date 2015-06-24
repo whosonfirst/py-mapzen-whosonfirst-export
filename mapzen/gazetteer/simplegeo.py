@@ -1,7 +1,7 @@
-import mapzen.export
+import mapzen.gazetteer.export
 import woe.isthat
 
-class exporter (mapzen.export.flatfile):
+class exporter (mapzen.gazetteer.export.flatfile):
 
     def __init__(self, root, **kwargs):
 

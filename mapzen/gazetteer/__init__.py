@@ -33,12 +33,22 @@ class flatfile:
 
         else:
 
-            data = geojson.load(fh)
+            try:
+                data = geojson.load(fh)
+            except Exception, e:
+                logging.error("Failed to load JSON for %s, because" % (path, e))
+                return False
 
-            for f in data['features']:
-                self.export_feature(f)
+            features = data.get('features', [])
 
-    def export_feature(self, f):
+            if len(features) == 0:
+                logging.warning("%s has not features" % path)
+                return False
+
+            for f in features:
+                self.export_feature(f, **kwargs)
+
+    def export_feature(self, f, **kwargs):
 
         self.massage_feature(f)
 
@@ -70,9 +80,9 @@ class flatfile:
 
         f['properties'] = props
 
-        return self.write_feature(f)
+        return self.write_feature(f, **kwargs)
 
-    def write_feature(self, f):
+    def write_feature(self, f, **kwargs):
 
         props = f['properties']
         mzid = props.get('mz:id', None)
@@ -83,16 +93,24 @@ class flatfile:
         root = os.path.join(self.root, parent)
         path = os.path.join(root, fname)
 
+        if kwargs.get('skip_existing', False) and os.path.exists(path):
+            logging.debug("%s already exists so whatEVAR" % path)
+            return True
+
         if not os.path.exists(root):
             os.makedirs(root)
 
         logging.info("writing %s" % (path))
 
-        fh = open(path, 'w')
-        self.write_json(f, fh)
-        fh.close()
+        try:
+            fh = open(path, 'w')
+            self.write_json(f, fh)
+            fh.close()
+        except Exception, e:
+            logging.error("failed to write %s, because %s" % (path, e))
+            return False
 
-        print path
+        return True
 
     def write_json(self, data, out, indent=2): 
 
