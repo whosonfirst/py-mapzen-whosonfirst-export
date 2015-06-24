@@ -22,7 +22,8 @@ if __name__ == '__main__':
     opt_parser.add_option('-d', '--dest', dest='dest', action='store', default=None, help='Where to write export files')
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='Source to export')
     opt_parser.add_option('-c', '--concordances', dest='concordances', action='store', default=None, help='PUID <--> Mapzen ID lookup database')
-    opt_parser.add_option('--skip', dest='skip', action='store_true', default=False, help='Do not overwrite existing files (default is False)')
+    opt_parser.add_option('--line-delimited', dest='line', action='store_true', default=False, help='GeoJSON is line-delimited (default is False)')
+    opt_parser.add_option('--skip-existing', dest='skip', action='store_true', default=False, help='Do not overwrite existing files (default is False)')
 
     opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
     options, args = opt_parser.parse_args()
@@ -32,9 +33,7 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    kwargs = {
-        'skip_existing': options.skip
-        }
+    kwargs = {}
 
     if options.concordances:
         kwargs['concordances'] = options.concordances
@@ -58,11 +57,17 @@ if __name__ == '__main__':
 
         fh = open(path, 'r')
 
-        for ln in fh.readlines():
+        if options.line:
 
-            ln = ln.strip()
-            data = geojson.loads(ln)
+            for ln in fh.readlines():
+                data = geojson.loads(ln)
+                e.export_feature(data)
 
-            e.export_feature(data)
-            
+        else:
+
+            data = geojson.load(fh)
+
+            for f in data['features']:
+                e.export_feature(f)
+
     sys.exit()
