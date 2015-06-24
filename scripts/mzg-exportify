@@ -4,9 +4,14 @@ import sys
 import os.path
 import geojson
 import logging
-import mapzen.gazetteer.export.simplegeo
 
-# sudo put me in mapze
+"""
+For example:
+
+/usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
+
+"""
+
 if __name__ == '__main__':
     
     import sys
@@ -37,8 +42,10 @@ if __name__ == '__main__':
     dest = os.path.abspath(options.dest)
 
     if options.source == 'openvenues':
+        import mapzen.gazetteer.export.openvenues
         e = mapzen.gazetteer.export.openvenues.exporter(dest, **kwargs)
     elif options.source == 'simplegeo':
+        import mapzen.gazetteer.export.simplegeo
         e = mapzen.gazetteer.export.simplegeo.exporter(dest, **kwargs)
     else:
         logging.error("Unknown or invalid source to export")
@@ -47,6 +54,8 @@ if __name__ == '__main__':
     for file in args:
 
         path = os.path.abspath(file)
+        logging.info("reading %s" % path)
+
         fh = open(path, 'r')
 
         for ln in fh.readlines():
@@ -55,3 +64,5 @@ if __name__ == '__main__':
             data = geojson.loads(ln)
 
             e.export_feature(data)
+            
+    sys.exit()
