@@ -6,6 +6,49 @@ import address_normalizer
 import mapzen.gazetteer.export
 import woe.isthat
 
+class exporter (mapzen.gazetteer.export.flatfile):
+
+    def __init__(self, root, **kwargs):
+
+        mapzen.gazetteer.export.flatfile.__init__(self, root)
+
+        self.lookup = None
+
+        if kwargs.get('concordances', None):
+            self.lookup = woe.isthat.lookup(kwargs['concordances'])
+
+    def massage_feature(self, f):
+
+        props = f['properties']
+        props['mz:placetype'] = 'venue'
+        props['mz:datasource'] = 'openvenues'
+
+        loc = props.get('locality', '')
+        addr = props.get('street_address', '')
+
+        loc = loc.encode('utf8')
+
+        addr = address_normalizer.expand_street_address(addr)
+        addr = " ".join(addr)
+        addr = addr.encode('utf8')
+
+        md5 = hashlib.md5()
+        md5.update("%s %s" % (addr, loc))
+        
+        puid = md5.hexdigest()
+        props['mz:puid'] = puid
+
+        if self.lookup:
+
+            mzid = self.lookup.woe_id(puid)
+            logging.debug("got %s for %s" % (mzid, puid))
+
+            if mzid != 0:
+                props['mz:id'] = mzid
+
+        f['properties'] = props
+
+
 """
 We are also generating a "puid" (in openvenues_exporter:massage_feature) for
 each venue that we subsequently export using export-venues-puids in to a CSV
@@ -67,45 +110,3 @@ correct (assuming the set fits in memory):
 
 (20150623/thisisaaronland)
 """
-
-class exporter (mapzen.gazetteer.export.flatfile):
-
-    def __init__(self, root, **kwargs):
-
-        mapzen.export.flatfile.__init__(self, root)
-
-        self.lookup = None
-
-        if kwargs.get('concordances', None):
-            self.lookup = woe.isthat.lookup(kargs['concordances'])
-
-    def massage_feature(self, f):
-
-        props = f['properties']
-        props['mz:placetype'] = 'venue'
-        props['mz:datasource'] = 'openvenues'
-
-        loc = props.get('locality', '')
-        addr = props.get('street_address', '')
-
-        loc = loc.encode('utf8')
-
-        addr = address_normalizer.expand_street_address(addr)
-        addr = " ".join(addr)
-        addr = addr.encode('utf8')
-
-        md5 = hashlib.md5()
-        md5.update("%s %s" % (addr, loc))
-        
-        puid = md5.hexdigest()
-        props['mz:puid'] = puid
-
-        if self.lookup:
-
-            mzid = self.lookup.woe_id(puid)
-            logging.debug("got %s for %s" % (mzid, puid))
-
-            if mzid != 0:
-                props['mz:id'] = mzid
-
-        f['properties'] = props

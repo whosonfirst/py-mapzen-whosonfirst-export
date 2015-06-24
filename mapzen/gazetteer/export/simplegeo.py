@@ -5,7 +5,7 @@ class exporter (mapzen.gazetteer.export.flatfile):
 
     def __init__(self, root, **kwargs):
 
-        mapzen.export.flatfile.__init__(self, root)
+        mapzen.gazetteer.export.flatfile.__init__(self, root)
         
         self.lookup = None
 
