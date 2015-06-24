@@ -6,9 +6,17 @@ import geojson
 import logging
 
 """
-For example:
+Simple - as in dump all the openvenues stuff to flatfiles using a concordances (sqlite) db to not reassign MZ IDs to things:
 
 /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
+
+Detailed - as in these should maybe all be smushed together in a separate shell script or something:
+
+/usr/local/bin/woeisthat-import -d concordances-mzid-mzpuid.db -s csv concordances-mzid-mzpuid.csv
+
+/usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
+
+/usr/local/bin/mzg-concordify -s /usr/local/mapzen/gaztteer -f 'mz:puid' -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv
 
 """
 
@@ -33,19 +41,23 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    kwargs = {}
-
+    obj_args = {}
+    
     if options.concordances:
-        kwargs['concordances'] = options.concordances
+        obj_args['concordances'] = options.concordances
+
+    export_args = {
+        'skip_existing': options.skip
+        }
 
     dest = os.path.abspath(options.dest)
 
     if options.source == 'openvenues':
         import mapzen.gazetteer.export.openvenues
-        e = mapzen.gazetteer.export.openvenues.exporter(dest, **kwargs)
+        e = mapzen.gazetteer.export.openvenues.exporter(dest, **obj_args)
     elif options.source == 'simplegeo':
         import mapzen.gazetteer.export.simplegeo
-        e = mapzen.gazetteer.export.simplegeo.exporter(dest, **kwargs)
+        e = mapzen.gazetteer.export.simplegeo.exporter(dest, **obj_args)
     else:
         logging.error("Unknown or invalid source to export")
         sys.exit()
@@ -60,14 +72,25 @@ if __name__ == '__main__':
         if options.line:
 
             for ln in fh.readlines():
-                data = geojson.loads(ln)
-                e.export_feature(data)
+
+                try:
+                    data = geojson.loads(ln)
+                except Exception, e:
+                    logging.error("failed to read ln, because %s" % e)
+                    logging.debug(ln)
+                    continue
+
+                e.export_feature(data, **export_args)
 
         else:
 
-            data = geojson.load(fh)
+            try:
+                data = geojson.load(fh)
+            except Exception, e:
+                logging.error("failed to read %s, because %s" % (path, e))
+                continue
 
             for f in data['features']:
-                e.export_feature(f)
+                e.export_feature(f, **export_args)
 
     sys.exit()
