@@ -62,6 +62,8 @@ if __name__ == '__main__':
         logging.error("Unknown or invalid source to export")
         sys.exit()
 
+    # TO DO - multiprocessor support to process multiple files 
+
     for file in args:
 
         path = os.path.abspath(file)

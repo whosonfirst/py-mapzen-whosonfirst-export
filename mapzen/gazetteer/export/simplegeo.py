@@ -1,5 +1,6 @@
 import mapzen.gazetteer.export
 import woe.isthat
+import logging
 
 class exporter (mapzen.gazetteer.export.flatfile):
 
@@ -10,7 +11,7 @@ class exporter (mapzen.gazetteer.export.flatfile):
         self.lookup = None
 
         if kwargs.get('concordances', None):
-            self.lookup = woe.isthat.lookup(kargs['concordances'])
+            self.lookup = woe.isthat.lookup(kwargs['concordances'])
 
     def massage_feature(self, f):
 
