@@ -90,6 +90,9 @@ if __name__ == '__main__':
         elif options.place == 'county' or options.place == 'adm2':
             e = mapzen.gazetteer.export.quattroshapes.adm2_exporter(dest, **obj_args)
 
+        elif options.place == 'locality':
+            e = mapzen.gazetteer.export.quattroshapes.locality_exporter(dest, **obj_args)
+
         else:
             logging.error("Invalid place or missing placetype")
             sys.exit()

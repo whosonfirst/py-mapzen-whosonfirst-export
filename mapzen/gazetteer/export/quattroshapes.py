@@ -67,11 +67,69 @@ class adm1_exporter(exporter):
 class adm2_exporter(exporter):
 
     def massage_feature(self, f):
-        raise Exception, "please write me"
 
-# localities (or whatever we end up calling them)
+        # raise Exception, "please write me"
+
+        props = f['properties']
+
+        import pprint
+        import sys
+
+        print pprint.pformat(props)
+        sys.exit()
+
+        f['properties'] = props
+        # pass-by-ref
+
+# localities
 
 class locality_exporter(exporter):
 
     def massage_feature(self, f):
-        raise Exception, "please write me"
+
+        props = f['properties']
+
+        props['mz:source'] = 'quattroshapes'
+        props['mz:placetype'] = 'locality'
+        props['mz:name'] = props['qs_loc']
+
+        woeid = props.get('qs_woe_id', None)
+
+        if woeid:
+            props['woe:id'] = woeid
+
+        gnid = props.get('qs_gn_id', None)
+
+        if gnid:
+            props['geonames:id'] = gnid
+
+        # because stuff like this - u'qs_iso_cc': u'U',
+        # (20150626/thisisaaronland)
+
+        iso = props.get('qs_iso_cc', None)
+
+        if iso and len(iso) == 2:
+            props['iso:country'] = iso
+
+        f['properties'] = props
+        # pass-by-ref
+
+# neighbourhoods
+
+class neighbourhood_exporter(exporter):
+
+    def massage_feature(self, f):
+
+        props = f['properties']
+
+        props['mz:source'] = 'quattroshapes'
+        props['mz:placetype'] = 'neighbourhood'
+
+        import sys
+        import pprint
+
+        print pprint.pformat(props)
+        sys.exit()
+
+        f['properties'] = props
+        # pass-by-ref

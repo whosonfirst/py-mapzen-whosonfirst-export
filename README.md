@@ -27,6 +27,8 @@ Or this, if you're being thorough about things. Note the part where we are gener
 
 ## Known knowns
 
+* Something something something generate concordance lookups on the fly / at start up...
+
 * For some reason simply listing Al's [address_normalizer](https://github.com/openvenues/address_normalizer) library in `setup.py` causes the install stuff to break. I have no idea...
 
 ## See also
