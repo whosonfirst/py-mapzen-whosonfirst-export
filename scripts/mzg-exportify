@@ -20,20 +20,33 @@ Detailed - as in these should maybe all be smushed together in a separate shell 
 
 """
 
+def export_feature(exporter, feature, args, options):
+
+    if options.verbose:	
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    exporter.export_feature(feature, **args)
+
 if __name__ == '__main__':
     
     import sys
     import optparse
+    import multiprocessing
 
     opt_parser = optparse.OptionParser()
 
     opt_parser.add_option('-d', '--dest', dest='dest', action='store', default=None, help='Where to write export files')
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='Source to export')
     opt_parser.add_option('-c', '--concordances', dest='concordances', action='store', default=None, help='PUID <--> Mapzen ID lookup database')
+    opt_parser.add_option('--place-type', dest='place', action='store', default=None, help='A particular place type (for a source) to export')
+    opt_parser.add_option('--multi-processing', dest='multi', action='store_true', default=False, help='Use multiple processors (default is False)')
     opt_parser.add_option('--line-delimited', dest='line', action='store_true', default=False, help='GeoJSON is line-delimited (default is False)')
     opt_parser.add_option('--skip-existing', dest='skip', action='store_true', default=False, help='Do not overwrite existing files (default is False)')
 
-    opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
+    opt_parser.add_option('--debug', dest='debug', action='store_true', default=False, help='Enable debugging (default is false)')
+    opt_parser.add_option('--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
     options, args = opt_parser.parse_args()
 
     if options.verbose:	
@@ -41,7 +54,9 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    obj_args = {}
+    obj_args = {
+        'debug': options.debug
+        }
     
     if options.concordances:
         obj_args['concordances'] = options.concordances
@@ -53,21 +68,45 @@ if __name__ == '__main__':
     dest = os.path.abspath(options.dest)
 
     if options.source == 'openvenues':
+
         import mapzen.gazetteer.export.openvenues
         e = mapzen.gazetteer.export.openvenues.exporter(dest, **obj_args)
+
     elif options.source == 'simplegeo':
         import mapzen.gazetteer.export.simplegeo
+
         e = mapzen.gazetteer.export.simplegeo.exporter(dest, **obj_args)
+
+    elif options.source == 'quattroshapes':
+
+        import mapzen.gazetteer.export.quattroshapes
+
+        if options.place == 'country' or options.placetype == 'adm0':
+            e = mapzen.gazetteer.export.quattroshapes.adm0_exporter(dest, **obj_args)
+
+        elif options.place == 'region' or options.placetype == 'adm1':
+            e = mapzen.gazetteer.export.quattroshapes.adm1_exporter(dest, **obj_args)
+
+        elif options.place == 'county' or options.placetype == 'adm2':
+            e = mapzen.gazetteer.export.quattroshapes.adm2_exporter(dest, **obj_args)
+
+        else:
+            logging.error("Invalid place or missing placetype")
+            sys.exit()
+
+
     else:
         logging.error("Unknown or invalid source to export")
         sys.exit()
-
-    # TO DO - multiprocessor support to process multiple files 
 
     for file in args:
 
         path = os.path.abspath(file)
         logging.info("reading %s" % path)
+
+        if options.multi:
+            logging.debug("create new pool")
+            pool = multiprocessing.Pool(processes=8)
 
         fh = open(path, 'r')
 
@@ -82,7 +121,10 @@ if __name__ == '__main__':
                     logging.debug(ln)
                     continue
 
-                e.export_feature(data, **export_args)
+                if options.multi:
+                    pool.apply_async(export_feature, (e, data, export_args, options))
+                else:
+                    e.export_feature(data, **export_args)
 
         else:
 
@@ -93,6 +135,14 @@ if __name__ == '__main__':
                 continue
 
             for f in data['features']:
-                e.export_feature(f, **export_args)
+
+                if options.multi:
+                    pool.apply_async(export_feature, (e, f, export_args, options))
+                else:
+                    e.export_feature(f, **export_args)
+
+        if options.multi:
+            pool.close()
+            pool.join()
 
     sys.exit()

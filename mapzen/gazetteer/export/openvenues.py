@@ -10,7 +10,7 @@ class exporter (mapzen.gazetteer.export.flatfile):
 
     def __init__(self, root, **kwargs):
 
-        mapzen.gazetteer.export.flatfile.__init__(self, root)
+        mapzen.gazetteer.export.flatfile.__init__(self, root, **kwargs)
 
         self.lookup = None
 
@@ -47,7 +47,7 @@ class exporter (mapzen.gazetteer.export.flatfile):
                 props['mz:id'] = mzid
 
         f['properties'] = props
-
+        # pass-by-ref
 
 """
 We are also generating a "puid" (in openvenues_exporter:massage_feature) for

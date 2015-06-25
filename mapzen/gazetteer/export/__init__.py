@@ -1,3 +1,4 @@
+import time
 import sys
 import re
 import os.path
@@ -8,10 +9,12 @@ import requests
 
 class flatfile:
 
-    def __init__(self, root):
+    def __init__(self, root, **kwargs):
 
         path = os.path.abspath(root)        
         self.root = path
+
+        self.debug = kwargs.get('debug', False)
 
     def export_geojson(self, file, **kwargs):
 
@@ -78,20 +81,23 @@ class flatfile:
             pass
         """
 
+        now = int(time.time())
+        props['mz:lastmodified'] = now
+
         f['properties'] = props
+
+        if self.debug:
+            logging.info("debugging is enabled so not writing anything to disk")
+            logging.info("if I did though I would write stuff to %s" % (self.feature_path(f)))
+            logging.info(props)
+            return True
 
         return self.write_feature(f, **kwargs)
 
     def write_feature(self, f, **kwargs):
 
-        props = f['properties']
-        mzid = props.get('mz:id', None)
-
-        fname = "%s.geojson" % mzid
-        parent = self.id2path(mzid)
-
-        root = os.path.join(self.root, parent)
-        path = os.path.join(root, fname)
+        path = self.feature_path(f)
+        root = os.path.dirname(path)
 
         if kwargs.get('skip_existing', False) and os.path.exists(path):
             logging.debug("%s already exists so whatEVAR" % path)
@@ -111,6 +117,19 @@ class flatfile:
             return False
 
         return True
+
+    def feature_path(self, f):
+
+        props = f['properties']
+        mzid = props.get('mz:id', None)
+
+        fname = "%s.geojson" % mzid
+        parent = self.id2path(mzid)
+
+        root = os.path.join(self.root, parent)
+        path = os.path.join(root, fname)
+
+        return path
 
     def write_json(self, data, out, indent=2): 
 

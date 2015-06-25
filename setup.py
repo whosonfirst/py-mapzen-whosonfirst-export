@@ -8,7 +8,7 @@ desc = open("README.md").read(),
 setup(
     name='mapzen.gazetteer.export',
     namespace_packages=['mapzen', 'mapzen.gazetteer', 'mapzen.gazetteer.export'],
-    version='0.24',
+    version='0.25',
     description='Simple Python wrapper for managing Mapzen Gazetteer export-related functions',
     author='Mapzen',
     url='https://github.com/thisisaaronland/py-mapzen-gazetter-export',
@@ -27,5 +27,5 @@ setup(
         'scripts/mzg-concordify',
         'scripts/mzg-exportify',
         ],
-    download_url='https://github.com/thisisaaronland/py-mapzen-gazetteer-export/releases/tag/v0.24',
+    download_url='https://github.com/thisisaaronland/py-mapzen-gazetteer-export/releases/tag/v0.25',
     license='BSD')
