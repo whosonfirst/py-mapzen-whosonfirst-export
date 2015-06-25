@@ -24,3 +24,9 @@ Or this, if you're being thorough about things. Note the part where we are gener
 	$> /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip --verbose /usr/local/mapzen/openvenues-data/*_*.geojson
 
 	$> /usr/local/bin/mzg-concordify -s /usr/local/mapzen/gaztteer -f 'mz:puid' -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv
+
+## Known knowns
+
+### address_normalizer
+
+For some reason simply listing Al's [address_normalizer](https://github.com/openvenues/address_normalizer) library in `setup.py` causes the install stuff to break. I have no idea...
