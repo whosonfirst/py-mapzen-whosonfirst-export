@@ -37,8 +37,30 @@ class adm0_exporter (exporter):
 
 class adm1_exporter(exporter):
 
+    # note - this needs to be taught how to deal with adm1_region
+    # thingies from quattroshapes (20150625/thisisaaronland)
+
     def massage_feature(self, f):
-        raise Exception, "please write me"
+
+        props = f['properties']
+
+        props['mz:source'] = 'quattroshapes'
+        props['mz:placetype'] = 'region'
+
+        props['mz:name'] = props['qs_a1']
+
+        woeid = props.get('qs_woe_id', None)
+
+        if woeid:
+            props['woe:id'] = woeid
+
+        iso = props.get('qs_iso_cc', None)
+
+        if iso:
+            props['iso:country'] = iso
+
+        f['properties'] = props
+        # pass-by-ref
 
 # counties (or whatever we end up calling them)
 

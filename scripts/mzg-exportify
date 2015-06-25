@@ -81,13 +81,13 @@ if __name__ == '__main__':
 
         import mapzen.gazetteer.export.quattroshapes
 
-        if options.place == 'country' or options.placetype == 'adm0':
+        if options.place == 'country' or options.place == 'adm0':
             e = mapzen.gazetteer.export.quattroshapes.adm0_exporter(dest, **obj_args)
 
-        elif options.place == 'region' or options.placetype == 'adm1':
+        elif options.place == 'region' or options.place == 'adm1':
             e = mapzen.gazetteer.export.quattroshapes.adm1_exporter(dest, **obj_args)
 
-        elif options.place == 'county' or options.placetype == 'adm2':
+        elif options.place == 'county' or options.place == 'adm2':
             e = mapzen.gazetteer.export.quattroshapes.adm2_exporter(dest, **obj_args)
 
         else:
