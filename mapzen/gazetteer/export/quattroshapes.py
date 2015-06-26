@@ -1,6 +1,9 @@
 import mapzen.gazetteer.export
 import woe.isthat
 
+import json
+import hashlib
+
 # base class just so we don't have to write the same __init__ block
 # for everything (20150625/thisisaaronland)
 
@@ -10,10 +13,16 @@ class exporter(mapzen.gazetteer.export.flatfile):
 
         mapzen.gazetteer.export.flatfile.__init__(self, root, **kwargs)
 
-        self.lookup = None
+        self.hash_geom = True
 
-        if kwargs.get('concordances', None):
-            self.lookup = woe.isthat.lookup(kwargs['concordances'])
+    def hash_geom(self, f):
+
+        geom = f['geometry']
+        geom = json.dumps(geom)
+
+        hash = hashlib.md5()
+        hash.update(geom)
+        return hash.hexdigest()
 
 # countries
 

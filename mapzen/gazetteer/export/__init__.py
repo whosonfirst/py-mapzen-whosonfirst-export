@@ -9,6 +9,9 @@ import json
 import geojson
 import logging
 import requests
+import pprint
+
+import woe.isthat
 
 class flatfile:
 
@@ -18,6 +21,20 @@ class flatfile:
         self.root = path
 
         self.debug = kwargs.get('debug', False)
+
+        concordances_db = kwargs.get('concordances_db', None)
+        concordances_key = kwargs.get('concordances_key', None)
+
+        self.concordances_db = None
+        self.concordances_key = None
+
+        if concordances_db:
+
+            if not concordances_key:
+                raise Exception, "You forget to specify a concordances key"
+            
+            self.concordances_db = importer = woe.isthat.importer(concordances_db)
+            self.concordances_key = concordances_key
 
     def export_geojson(self, file, **kwargs):
 
@@ -57,8 +74,11 @@ class flatfile:
     def export_feature(self, f, **kwargs):
 
         self.massage_feature(f)
-
+        
         props = f['properties']
+
+        props['mz:geom'] = self.hash_geom(f)
+
         mzid = props.get('mz:id', None)
 
         if not mzid:
@@ -73,27 +93,32 @@ class flatfile:
 
             props['mz:id'] = mzid
 
-        """
-        id = f.get('id', None)
-        
-        if not id:
-            f['id'] = props['mz:id']
-        elif id != props['mz:id']:
-            f['id'] = props['mz:id']
-        else:
-            pass
-        """
-
         now = int(time.time())
         props['mz:lastmodified'] = now
 
         f['properties'] = props
 
         if self.debug:
-            logging.info("debugging is enabled so not writing anything to disk")
+            logging.info("debugging is enabled so not writing anything to disk...")
             logging.info("if I did though I would write stuff to %s" % (self.feature_path(f)))
-            logging.info(props)
+
+            logging.info(pprint.pformat(props))
             return True
+
+        #
+
+        if self.concordances_db:
+
+            concordance = props.get(self.concordance_key, None)
+
+            if concordance:
+                logging.info("concordifying %s with %s" % (mzid, concordance))
+                self.concordances_db.import_concordance(mzid, concordance)
+            else:
+                logging.warning("unable to find %s key to concordify with %s" % (self.concordance_key, mzid))
+
+                
+        #
 
         return self.write_feature(f, **kwargs)
 

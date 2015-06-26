@@ -2,6 +2,14 @@
 
 Export tools for the Mapzen gazetteer
 
+## Install
+
+Depending on which version of rage-making Python or more likely the rage-making-er `setuptools` you may need to expicitly tell the install script to put the command line tools in `/usr/local/bin` like this:
+
+```
+sudo python ./setup.py install --install-scripts /usr/local/bin
+```
+
 ## Usage
 
 _Please write me_
