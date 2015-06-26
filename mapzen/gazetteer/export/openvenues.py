@@ -12,16 +12,11 @@ class exporter (mapzen.gazetteer.export.flatfile):
 
         mapzen.gazetteer.export.flatfile.__init__(self, root, **kwargs)
 
-        self.lookup = None
-
-        if kwargs.get('concordances', None):
-            self.lookup = woe.isthat.lookup(kwargs['concordances'])
-
     def massage_feature(self, f):
 
         props = f['properties']
         props['mz:placetype'] = 'venue'
-        props['mz:datasource'] = 'openvenues'
+        props['mz:source'] = 'openvenues'
 
         loc = props.get('locality', '')
         addr = props.get('street_address', '')
@@ -37,14 +32,6 @@ class exporter (mapzen.gazetteer.export.flatfile):
         
         puid = md5.hexdigest()
         props['mz:puid'] = puid
-
-        if self.lookup:
-
-            mzid = self.lookup.woe_id(puid)
-            logging.debug("got %s for %s" % (mzid, puid))
-
-            if mzid != 0:
-                props['mz:id'] = mzid
 
         f['properties'] = props
         # pass-by-ref

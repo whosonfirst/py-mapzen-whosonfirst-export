@@ -39,14 +39,20 @@ if __name__ == '__main__':
 
     opt_parser.add_option('-d', '--dest', dest='dest', action='store', default=None, help='Where to write export files')
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='Source to export')
-    opt_parser.add_option('-c', '--concordances', dest='concordances', action='store', default=None, help='PUID <--> Mapzen ID lookup database')
+
     opt_parser.add_option('--place-type', dest='place', action='store', default=None, help='A particular place type (for a source) to export')
+
+    opt_parser.add_option('--concordances-db', dest='concordances_db', action='store', default=None, help='')
+    opt_parser.add_option('--concordances-key', dest='concordances_key', action='store', default=None, help='')
+
     opt_parser.add_option('--multi-processing', dest='multi', action='store_true', default=False, help='Use multiple processors (default is False)')
+
     opt_parser.add_option('--line-delimited', dest='line', action='store_true', default=False, help='GeoJSON is line-delimited (default is False)')
     opt_parser.add_option('--skip-existing', dest='skip', action='store_true', default=False, help='Do not overwrite existing files (default is False)')
 
     opt_parser.add_option('--debug', dest='debug', action='store_true', default=False, help='Enable debugging (default is false)')
     opt_parser.add_option('--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
+
     options, args = opt_parser.parse_args()
 
     if options.verbose:	
@@ -57,9 +63,12 @@ if __name__ == '__main__':
     obj_args = {
         'debug': options.debug
         }
-    
-    if options.concordances:
-        obj_args['concordances'] = options.concordances
+            
+    if options.concordances_db:
+        obj_args['concordances_db'] = options.concordances_db
+
+    if options.concordances_key:
+        obj_args['concordances_key'] = options.concordances_key
 
     export_args = {
         'skip_existing': options.skip

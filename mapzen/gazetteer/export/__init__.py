@@ -10,6 +10,7 @@ import geojson
 import logging
 import requests
 import pprint
+import hashlib
 
 import woe.isthat
 
@@ -77,9 +78,28 @@ class flatfile:
         
         props = f['properties']
 
-        props['mz:geom'] = self.hash_geom(f)
+        props['mz:geomhash'] = self.hash_geom(f)
+
+        # who am I ?
+        # have I been here before ?
+        # why is the sky blue ?
 
         mzid = props.get('mz:id', None)
+
+        # do we have a concordance with which to help find ourselves ?
+
+        if not mzid:
+
+            if self.concordances_db:
+
+                lookup = self.concordances_key
+                mzid = self.concordances_db.woe_id(lookup)
+                logging.debug("got %s for %s" % (mzid, lookup))
+
+                if mzid != 0:
+                    props['mz:id'] = mzid
+                else:
+                    mzid = None
 
         if not mzid:
 
@@ -93,6 +113,8 @@ class flatfile:
 
             props['mz:id'] = mzid
 
+        # what time is it?
+
         now = int(time.time())
         props['mz:lastmodified'] = now
 
@@ -105,11 +127,12 @@ class flatfile:
             logging.info(pprint.pformat(props))
             return True
 
-        #
+        # store concordances
 
         if self.concordances_db:
 
-            concordance = props.get(self.concordance_key, None)
+            concordance = props.get(self.concordances_key, None)
+            logging.info("%s : %s" % (self.concordances_key, concordance))
 
             if concordance:
                 logging.info("concordifying %s with %s" % (mzid, concordance))
@@ -228,3 +251,11 @@ class flatfile:
     
         return data.get('integer', 0)
 
+    def hash_geom(self, f):
+
+        geom = f['geometry']
+        geom = json.dumps(geom)
+
+        hash = hashlib.md5()
+        hash.update(geom)
+        return hash.hexdigest()
