@@ -125,11 +125,17 @@ class neighbourhood_exporter(exporter):
         props['mz:source'] = 'quattroshapes'
         props['mz:placetype'] = 'neighbourhood'
 
-        import sys
-        import pprint
+        props['mz:name'] = props['name']
 
-        print pprint.pformat(props)
-        sys.exit()
+        woeid = props.get('woe_id', None)
+
+        if woeid:
+            props['woe:id'] = woeid
+
+        gnid = props.get('gn_id', None)
+
+        if gnid:
+            props['geonames:id'] = gnid
 
         f['properties'] = props
         # pass-by-ref
