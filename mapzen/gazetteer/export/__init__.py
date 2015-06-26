@@ -34,7 +34,7 @@ class flatfile:
             if not concordances_key:
                 raise Exception, "You forget to specify a concordances key"
             
-            self.concordances_db = importer = woe.isthat.importer(concordances_db)
+            self.concordances_db = woe.isthat.importer(concordances_db)
             self.concordances_key = concordances_key
 
     def export_geojson(self, file, **kwargs):
