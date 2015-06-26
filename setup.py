@@ -8,7 +8,7 @@ desc = open("README.md").read(),
 setup(
     name='mapzen.gazetteer.export',
     namespace_packages=['mapzen', 'mapzen.gazetteer', 'mapzen.gazetteer.export'],
-    version='0.32',
+    version='0.33',
     description='Simple Python wrapper for managing Mapzen Gazetteer export-related functions',
     author='Mapzen',
     url='https://github.com/thisisaaronland/py-mapzen-gazetter-export',
@@ -20,12 +20,12 @@ setup(
         ],
     dependency_links=[
         # 'https://github.com/openvenues/address_normalizer/tarball/master#egg=address-normalizer-0.2',
-        'https://github.com/thisisaaronland/py-woe-isthat/tarball/master#egg=woe-isthat-0.14',
+        'https://github.com/thisisaaronland/py-woe-isthat/tarball/master#egg=woe-isthat-0.15',
         ],
     packages=packages,
     scripts=[
         'scripts/mzg-concordify',
         'scripts/mzg-exportify',
         ],
-    download_url='https://github.com/thisisaaronland/py-mapzen-gazetteer-export/releases/tag/v0.32',
+    download_url='https://github.com/thisisaaronland/py-mapzen-gazetteer-export/releases/tag/v0.33',
     license='BSD')

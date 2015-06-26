@@ -23,6 +23,10 @@ class flatfile:
 
         self.debug = kwargs.get('debug', False)
 
+        # concordances stuff - for when we are plowing through
+        # a dataset that takes a long time and may need to be
+        # restarted.
+
         concordances_db = kwargs.get('concordances_db', None)
         concordances_key = kwargs.get('concordances_key', None)
 
@@ -34,8 +38,10 @@ class flatfile:
             if not concordances_key:
                 raise Exception, "You forget to specify a concordances key"
             
-            self.concordances_db = woe.isthat.importer(concordances_db)
             self.concordances_key = concordances_key
+
+            i = woe.isthat.importer(concordances_db)
+            self.concordances_db = i
 
     def export_geojson(self, file, **kwargs):
 
@@ -92,14 +98,18 @@ class flatfile:
 
             if self.concordances_db:
 
-                lookup = self.concordances_key
-                mzid = self.concordances_db.woe_id(lookup)
-                logging.debug("got %s for %s" % (mzid, lookup))
+                lookup = props.get(self.concordances_key, None)
 
-                if mzid != 0:
-                    props['mz:id'] = mzid
+                if lookup:
+                    mzid = self.concordances_db.woe_id(lookup)
+                    logging.debug("got %s for %s" % (mzid, lookup))
+
+                    if mzid != 0:
+                        props['mz:id'] = mzid
+                    else:
+                        mzid = None
                 else:
-                    mzid = None
+                    logging.warning("failed to find concordances key %s" % lookup)
 
         if not mzid:
 
