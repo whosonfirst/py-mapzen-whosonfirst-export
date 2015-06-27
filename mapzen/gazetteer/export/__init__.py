@@ -215,6 +215,8 @@ class flatfile:
             else:
                 out.write(token)
 
+    # sudo replace with mapzen.gazetteer.utils.id2path
+
     def id2path(self, id):
 
         tmp = str(id)
@@ -233,6 +235,8 @@ class flatfile:
 
     def massage_feature(self, f):
         pass
+
+    # sudo replace with mapzen.gazetteer.utils.generate_id
 
     def generate_id(self):
 
