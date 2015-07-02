@@ -12,6 +12,7 @@ import requests
 import pprint
 import hashlib
 
+import mapzen.gazetteer.utils
 import woe.isthat
 
 class flatfile:
@@ -80,6 +81,8 @@ class flatfile:
 
     def export_feature(self, f, **kwargs):
 
+        mapzen.gazetteer.utils.ensure_bbox(f)
+
         self.massage_feature(f)
         
         props = f['properties']
@@ -115,7 +118,7 @@ class flatfile:
 
             logging.debug("This record has no mzid so now asking what Brooklyn would do...")
 
-            mzid = self.generate_id()
+            mzid = mapzen.gazetteer.utils.generate_id()
 
             if mzid == 0:
                 logging.error("OH NO - can't get integer!")
@@ -185,7 +188,7 @@ class flatfile:
         mzid = props.get('mz:id', None)
 
         fname = "%s.geojson" % mzid
-        parent = self.id2path(mzid)
+        parent = mapzen.gazetteer.utils.id2path(mzid)
 
         root = os.path.join(self.root, parent)
         path = os.path.join(root, fname)
@@ -215,55 +218,10 @@ class flatfile:
             else:
                 out.write(token)
 
-    # sudo replace with mapzen.gazetteer.utils.id2path
-
-    def id2path(self, id):
-
-        tmp = str(id)
-        parts = []
-
-        while len(tmp) > 3:
-            parts.append(tmp[0:3])
-            tmp = tmp[3:]
-
-        if len(tmp):
-            parts.append(tmp)
-
-        return "/".join(parts)
-
     # This is left to subclasses to define
 
     def massage_feature(self, f):
         pass
-
-    # sudo replace with mapzen.gazetteer.utils.generate_id
-
-    def generate_id(self):
-
-        url = 'http://api.brooklynintegers.com/rest/'
-        params = {'method':'brooklyn.integers.create'}
-
-        try :
-            rsp = requests.post(url, params=params)    
-            data = rsp.content
-        except Exception, e:
-            logging.error(e)
-            return 0
-
-        # Note: this is because I am lazy and can't
-        # remember to update the damn code to account
-        # for PHP now issuing warnings for the weird
-        # way it does regular expressions in the first
-        # place... (20150623/thisisaaronland)
-
-        try:
-            data = re.sub(r"^[^\{]+", "", data)
-            data = json.loads(data)
-        except Exception, e:
-            logging.error(e)
-            return 0
-    
-        return data.get('integer', 0)
 
     def hash_geom(self, f):
 

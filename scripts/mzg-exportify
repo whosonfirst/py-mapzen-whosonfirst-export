@@ -10,14 +10,6 @@ Simple - as in dump all the openvenues stuff to flatfiles using a concordances (
 
 /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
 
-Detailed - as in these should maybe all be smushed together in a separate shell script or something:
-
-/usr/local/bin/woeisthat-import -d concordances-mzid-mzpuid.db -s csv concordances-mzid-mzpuid.csv
-
-/usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
-
-/usr/local/bin/mzg-concordify -s /usr/local/mapzen/gaztteer -f 'mz:puid' -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv
-
 """
 
 def export_feature(exporter, feature, args, options):
@@ -109,6 +101,26 @@ if __name__ == '__main__':
             logging.error("Invalid place or missing placetype")
             sys.exit()
 
+    elif options.source == 'woedb':
+
+        import mapzen.gazetteer.export.woedb
+
+        if options.place == 'timezone':
+            e = mapzen.gazetteer.export.woedb.timezone_exporter(dest, **obj_args)
+        else:
+            logging.error("Invalid place or missing placetype")
+            sys.exit()
+
+        root = args[0]
+        args = []
+
+        for (path, dirs, files) in os.walk(root):
+
+            for f in files:
+
+                f = os.path.join(path, f)
+                f = os.path.abspath(f)
+                args.append(f)
 
     else:
         logging.error("Unknown or invalid source to export")
