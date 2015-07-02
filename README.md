@@ -25,13 +25,13 @@ $> /usr/local/bin/mzg-concordify -s /usr/local/mapzen/gaztteer -f 'mz:puid' -c /
 ### mzg-exportify
 
 ```
-$> /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues --concordances-db /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.db --concordances-key 'mz:puid' --skip --verbose /usr/local/mapzen/openvenues-data/*_*.geojson
+$> /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer-local -s openvenues --concordances-db /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.db --concordances-key 'mz:puid' --skip --verbose /usr/local/mapzen/openvenues-data/*_*.geojson
 ```
 
 By default this tool expects a list of GeoJSON files on the command-line. A subset of specific import sources allow you to pass a directory that will be traversed (in search of GeoJSON files). For example:
 
 ```
-$> /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s woedb --concordances-db /usr/local/mapzen/gazetteer-concordances/concordances-mzid-woedb.db --concordances-key 'woe:id' --skip --verbose /usr/local/mapzen/woe-data/whereonearth-timezone/data
+$> /usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer-local -s woedb --place-type timezone --concordances-db /usr/local/mapzen/gazetteer-concordances/concordances-mzid-woedb.db --concordances-key 'woe:id' --skip --verbose /usr/local/mapzen/woe-data/whereonearth-timezone/data
 ```
 
 ## Known knowns
