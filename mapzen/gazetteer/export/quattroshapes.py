@@ -63,15 +63,35 @@ class adm2_exporter(exporter):
 
     def massage_feature(self, f):
 
-        # raise Exception, "please write me"
-
         props = f['properties']
 
-        import pprint
-        import sys
+        props['mz:source'] = 'quattroshapes'
+        props['mz:placetype'] = 'region'
 
-        print pprint.pformat(props)
-        sys.exit()
+        props['mz:name'] = props['qs_a2']
+
+        woeid = props.get('qs_woe_id', None)
+        gnid = props.get('qs_gn_id', None)
+
+        if woeid:
+            props['woe:id'] = woeid
+
+        iso = props.get('qs_iso_cc', None)
+
+        if iso:
+            del(props['qs_iso_cc'])
+            props['iso:country'] = iso
+
+        for k, v in props.items():
+            
+            if k.startswith("qs_"):
+                
+                new_k = k.replace("qs_", "qs:")
+
+                if v:                    
+                    props[new_k] = v
+
+                del(props[k])
 
         f['properties'] = props
         # pass-by-ref
