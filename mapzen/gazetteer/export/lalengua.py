@@ -8,8 +8,6 @@ class exporter(mapzen.gazetteer.export.flatfile):
 
     def massage_feature(self, f):
 
-        raise Exception, "please write me"
-
         props = {}
         props['mz:placetype'] = 'neighbourhood'
         props['iso:country'] = 'US'

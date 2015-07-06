@@ -66,7 +66,7 @@ class adm2_exporter(exporter):
         props = f['properties']
 
         props['mz:source'] = 'quattroshapes'
-        props['mz:placetype'] = 'region'
+        props['mz:placetype'] = 'county'
 
         props['mz:name'] = props['qs_a2']
 

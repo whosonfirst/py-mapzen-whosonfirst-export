@@ -101,11 +101,21 @@ if __name__ == '__main__':
             logging.error("Invalid place or missing placetype")
             sys.exit()
 
-    elif options.source == 'gowanusheights':
+    elif options.source == 'custom':
 
-        import mapzen.gazetteer.export.gowanusheights
-        e = mapzen.gazetteer.export.gowanusheights.exporter(dest, **obj_args)
+        if options.place == 'gowanusheights':
+            import mapzen.gazetteer.export.gowanusheights
+            e = mapzen.gazetteer.export.gowanusheights.exporter(dest, **obj_args)
 
+        elif options.place == 'lalengua':
+
+            import mapzen.gazetteer.export.lalengua
+            e = mapzen.gazetteer.export.lalengua.exporter(dest, **obj_args)
+
+        else:
+            logging.error("Invalid place or missing placetype")
+            sys.exit()
+            
     elif options.source == 'woedb':
 
         import mapzen.gazetteer.export.woedb
