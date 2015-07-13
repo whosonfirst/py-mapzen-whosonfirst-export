@@ -9,8 +9,8 @@ class exporter(mapzen.gazetteer.export.flatfile):
     def massage_feature(self, f):
 
         props = {}
-        props['mz:placetype'] = 'neighbourhood'
+        props['wof:placetype'] = 'neighbourhood'
         props['iso:country'] = 'US'
-        props['mz:name'] = 'La Lengua'
+        props['wof:name'] = 'La Lengua'
 
         f['properties'] = props

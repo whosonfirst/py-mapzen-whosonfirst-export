@@ -21,9 +21,9 @@ class adm0_exporter (exporter):
         # because there are no QS UIDS for countries...
         props['qs:id'] = props['qs_iso_cc']
 
-        props['mz:name'] = props['qs_adm0']
-        props['mz:source'] = 'quattroshapes'
-        props['mz:placetype'] = 'country'
+        props['wof:name'] = props['qs_adm0']
+        props['wof:source'] = 'quattroshapes'
+        props['wof:placetype'] = 'country'
 
         f['properties'] = props
         # pass-by-ref
@@ -39,10 +39,10 @@ class adm1_exporter(exporter):
 
         props = f['properties']
 
-        props['mz:source'] = 'quattroshapes'
-        props['mz:placetype'] = 'region'
+        props['wof:source'] = 'quattroshapes'
+        props['wof:placetype'] = 'region'
 
-        props['mz:name'] = props['qs_a1']
+        props['wof:name'] = props['qs_a1']
 
         woeid = props.get('qs_woe_id', None)
 
@@ -65,10 +65,10 @@ class adm2_exporter(exporter):
 
         props = f['properties']
 
-        props['mz:source'] = 'quattroshapes'
-        props['mz:placetype'] = 'county'
+        props['wof:source'] = 'quattroshapes'
+        props['wof:placetype'] = 'county'
 
-        props['mz:name'] = props['qs_a2']
+        props['wof:name'] = props['qs_a2']
 
         woeid = props.get('qs_woe_id', None)
         gnid = props.get('qs_gn_id', None)
@@ -104,9 +104,9 @@ class locality_exporter(exporter):
 
         props = f['properties']
 
-        props['mz:source'] = 'quattroshapes'
-        props['mz:placetype'] = 'locality'
-        props['mz:name'] = props['qs_loc']
+        props['wof:source'] = 'quattroshapes'
+        props['wof:placetype'] = 'locality'
+        props['wof:name'] = props['qs_loc']
 
         woeid = props.get('qs_woe_id', None)
 
@@ -137,10 +137,10 @@ class neighbourhood_exporter(exporter):
 
         props = f['properties']
 
-        props['mz:source'] = 'quattroshapes'
-        props['mz:placetype'] = 'neighbourhood'
+        props['wof:source'] = 'quattroshapes'
+        props['wof:placetype'] = 'neighbourhood'
 
-        props['mz:name'] = props['name']
+        props['wof:name'] = props['name']
 
         woeid = props.get('woe_id', None)
 

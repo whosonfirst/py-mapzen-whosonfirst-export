@@ -13,10 +13,10 @@ class timezone_exporter(exporter):
         woe_props = f['properties']
 
         props = {}
-        props['mz:placetype'] = 'timezone'
-        props['mz:source'] = 'woedb'
-        props['mz:name'] = woe_props.get('name', '')
-        props['mz:fullname'] = woe_props.get('fullname', '')
+        props['wof:placetype'] = 'timezone'
+        props['wof:source'] = 'woedb'
+        props['wof:name'] = woe_props.get('name', '')
+        props['wof:fullname'] = woe_props.get('fullname', '')
         props['woe:id'] = woe_props.get('woe:id', 0)
 
         if woe_props.get('provider', False):

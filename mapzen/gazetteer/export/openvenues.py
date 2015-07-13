@@ -15,8 +15,8 @@ class exporter (mapzen.gazetteer.export.flatfile):
     def massage_feature(self, f):
 
         props = f['properties']
-        props['mz:placetype'] = 'venue'
-        props['mz:source'] = 'openvenues'
+        props['wof:placetype'] = 'venue'
+        props['wof:source'] = 'openvenues'
 
         loc = props.get('locality', '')
         addr = props.get('street_address', '')
@@ -31,7 +31,7 @@ class exporter (mapzen.gazetteer.export.flatfile):
         md5.update("%s %s" % (addr, loc))
         
         puid = md5.hexdigest()
-        props['mz:puid'] = puid
+        props['wof:puid'] = puid
 
         f['properties'] = props
         # pass-by-ref

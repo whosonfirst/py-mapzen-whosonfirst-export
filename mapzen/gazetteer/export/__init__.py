@@ -87,49 +87,49 @@ class flatfile:
         
         props = f['properties']
 
-        props['mz:geomhash'] = self.hash_geom(f)
+        props['wof:geomhash'] = self.hash_geom(f)
 
         # who am I ?
         # have I been here before ?
         # why is the sky blue ?
 
-        mzid = props.get('mz:id', None)
+        wofid = props.get('wof:id', None)
 
         # do we have a concordance with which to help find ourselves ?
 
-        if not mzid:
+        if not wofid:
 
             if self.concordances_db:
 
                 lookup = props.get(self.concordances_key, None)
 
                 if lookup:
-                    mzid = self.concordances_db.woe_id(lookup)
-                    logging.debug("got %s for %s" % (mzid, lookup))
+                    wofid = self.concordances_db.woe_id(lookup)
+                    logging.debug("got %s for %s" % (wofid, lookup))
 
-                    if mzid != 0:
-                        props['mz:id'] = mzid
+                    if wofid != 0:
+                        props['wof:id'] = wofid
                     else:
-                        mzid = None
+                        wofid = None
                 else:
                     logging.warning("failed to find concordances key %s" % lookup)
 
-        if not mzid:
+        if not wofid:
 
-            logging.debug("This record has no mzid so now asking what Brooklyn would do...")
+            logging.debug("This record has no wofid so now asking what Brooklyn would do...")
 
-            mzid = mapzen.gazetteer.utils.generate_id()
+            wofid = mapzen.gazetteer.utils.generate_id()
 
-            if mzid == 0:
+            if wofid == 0:
                 logging.error("OH NO - can't get integer!")
                 return False
 
-            props['mz:id'] = mzid
+            props['wof:id'] = wofid
 
         # what time is it?
 
         now = int(time.time())
-        props['mz:lastmodified'] = now
+        props['wof:lastmodified'] = now
 
         f['properties'] = props
 
@@ -148,10 +148,10 @@ class flatfile:
             logging.info("%s : %s" % (self.concordances_key, concordance))
 
             if concordance:
-                logging.info("concordifying %s with %s" % (mzid, concordance))
-                self.concordances_db.import_concordance(mzid, concordance)
+                logging.info("concordifying %s with %s" % (wofid, concordance))
+                self.concordances_db.import_concordance(wofid, concordance)
             else:
-                logging.warning("unable to find %s key to concordify with %s" % (self.concordance_key, mzid))
+                logging.warning("unable to find %s key to concordify with %s" % (self.concordance_key, wofid))
 
                 
         #
@@ -185,10 +185,10 @@ class flatfile:
     def feature_path(self, f):
 
         props = f['properties']
-        mzid = props.get('mz:id', None)
+        wofid = props.get('wof:id', None)
 
-        fname = "%s.geojson" % mzid
-        parent = mapzen.gazetteer.utils.id2path(mzid)
+        fname = "%s.geojson" % wofid
+        parent = mapzen.gazetteer.utils.id2path(wofid)
 
         root = os.path.join(self.root, parent)
         path = os.path.join(root, fname)

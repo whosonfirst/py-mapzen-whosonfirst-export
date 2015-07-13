@@ -12,8 +12,8 @@ class exporter (mapzen.gazetteer.export.flatfile):
         sgid = f.get('id', None)
 
         props = f['properties']
-        props['mz:placetype'] = 'venue'
-        props['mz:source'] = 'simplegeo'
+        props['wof:placetype'] = 'venue'
+        props['wof:source'] = 'simplegeo'
 
         props['sg:id'] = sgid
 

@@ -6,9 +6,9 @@ import geojson
 import logging
 
 """
-Simple - as in dump all the openvenues stuff to flatfiles using a concordances (sqlite) db to not reassign MZ IDs to things:
+Simple - as in dump all the openvenues stuff to flatfiles using a concordances (sqlite) db to not reassign WOF IDs to things:
 
-/usr/local/bin/mzg-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-mzid-mzpuid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
+/usr/local/bin/wof-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-wofid-puid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
 
 """
 

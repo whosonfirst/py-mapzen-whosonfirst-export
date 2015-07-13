@@ -44,11 +44,11 @@ if __name__ == '__main__':
 
             props = data['properties']
 
-            mzid = props['mz:id']
+            wofid = props['wof:id']
             other = props.get(options.foreign_key, None)
             
             if other:
-                c = (mzid, other)
+                c = (wofid, other)
                 writer.writerow(c)
 
     sys.exit()
