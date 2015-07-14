@@ -5,13 +5,6 @@ import os.path
 import geojson
 import logging
 
-"""
-Simple - as in dump all the openvenues stuff to flatfiles using a concordances (sqlite) db to not reassign WOF IDs to things:
-
-/usr/local/bin/wof-exportify -d /usr/local/mapzen/gazetteer -s openvenues -c /usr/local/mapzen/gazetteer-concordances/concordances-wofid-puid.csv --skip -v /usr/local/mapzen/openvenues-data/*_*.geojson
-
-"""
-
 def export_feature(exporter, feature, args, options):
 
     if options.verbose:	
@@ -70,32 +63,32 @@ if __name__ == '__main__':
 
     if options.source == 'openvenues':
 
-        import mapzen.gazetteer.export.openvenues
-        e = mapzen.gazetteer.export.openvenues.exporter(dest, **obj_args)
+        import mapzen.whosonfirst.export.openvenues
+        e = mapzen.whosonfirst.export.openvenues.exporter(dest, **obj_args)
 
     elif options.source == 'simplegeo':
-        import mapzen.gazetteer.export.simplegeo
+        import mapzen.whosonfirst.export.simplegeo
 
-        e = mapzen.gazetteer.export.simplegeo.exporter(dest, **obj_args)
+        e = mapzen.whosonfirst.export.simplegeo.exporter(dest, **obj_args)
 
     elif options.source == 'quattroshapes':
 
-        import mapzen.gazetteer.export.quattroshapes
+        import mapzen.whosonfirst.export.quattroshapes
 
         if options.place == 'country' or options.place == 'adm0':
-            e = mapzen.gazetteer.export.quattroshapes.adm0_exporter(dest, **obj_args)
+            e = mapzen.whosonfirst.export.quattroshapes.adm0_exporter(dest, **obj_args)
 
         elif options.place == 'region' or options.place == 'adm1':
-            e = mapzen.gazetteer.export.quattroshapes.adm1_exporter(dest, **obj_args)
+            e = mapzen.whosonfirst.export.quattroshapes.adm1_exporter(dest, **obj_args)
 
         elif options.place == 'county' or options.place == 'adm2':
-            e = mapzen.gazetteer.export.quattroshapes.adm2_exporter(dest, **obj_args)
+            e = mapzen.whosonfirst.export.quattroshapes.adm2_exporter(dest, **obj_args)
 
         elif options.place == 'locality':
-            e = mapzen.gazetteer.export.quattroshapes.locality_exporter(dest, **obj_args)
+            e = mapzen.whosonfirst.export.quattroshapes.locality_exporter(dest, **obj_args)
 
         elif options.place == 'neighbourhood' or options.place == 'neighborhood':
-            e = mapzen.gazetteer.export.quattroshapes.neighbourhood_exporter(dest, **obj_args)
+            e = mapzen.whosonfirst.export.quattroshapes.neighbourhood_exporter(dest, **obj_args)
 
         else:
             logging.error("Invalid place or missing placetype")
@@ -104,13 +97,13 @@ if __name__ == '__main__':
     elif options.source == 'custom':
 
         if options.place == 'gowanusheights':
-            import mapzen.gazetteer.export.gowanusheights
-            e = mapzen.gazetteer.export.gowanusheights.exporter(dest, **obj_args)
+            import mapzen.whosonfirst.export.gowanusheights
+            e = mapzen.whosonfirst.export.gowanusheights.exporter(dest, **obj_args)
 
         elif options.place == 'lalengua':
 
-            import mapzen.gazetteer.export.lalengua
-            e = mapzen.gazetteer.export.lalengua.exporter(dest, **obj_args)
+            import mapzen.whosonfirst.export.lalengua
+            e = mapzen.whosonfirst.export.lalengua.exporter(dest, **obj_args)
 
         else:
             logging.error("Invalid place or missing placetype")
@@ -118,10 +111,10 @@ if __name__ == '__main__':
             
     elif options.source == 'woedb':
 
-        import mapzen.gazetteer.export.woedb
+        import mapzen.whosonfirst.export.woedb
 
         if options.place == 'timezone':
-            e = mapzen.gazetteer.export.woedb.timezone_exporter(dest, **obj_args)
+            e = mapzen.whosonfirst.export.woedb.timezone_exporter(dest, **obj_args)
         else:
             logging.error("Invalid place or missing placetype")
             sys.exit()

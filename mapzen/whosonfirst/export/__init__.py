@@ -12,7 +12,7 @@ import requests
 import pprint
 import hashlib
 
-import mapzen.gazetteer.utils
+import mapzen.whosonfirst.utils
 import woe.isthat
 
 class flatfile:
@@ -81,7 +81,7 @@ class flatfile:
 
     def export_feature(self, f, **kwargs):
 
-        mapzen.gazetteer.utils.ensure_bbox(f)
+        mapzen.whosonfirst.utils.ensure_bbox(f)
 
         self.massage_feature(f)
         
@@ -118,7 +118,7 @@ class flatfile:
 
             logging.debug("This record has no wofid so now asking what Brooklyn would do...")
 
-            wofid = mapzen.gazetteer.utils.generate_id()
+            wofid = mapzen.whosonfirst.utils.generate_id()
 
             if wofid == 0:
                 logging.error("OH NO - can't get integer!")
@@ -188,7 +188,7 @@ class flatfile:
         wofid = props.get('wof:id', None)
 
         fname = "%s.geojson" % wofid
-        parent = mapzen.gazetteer.utils.id2path(wofid)
+        parent = mapzen.whosonfirst.utils.id2path(wofid)
 
         root = os.path.join(self.root, parent)
         path = os.path.join(root, fname)
