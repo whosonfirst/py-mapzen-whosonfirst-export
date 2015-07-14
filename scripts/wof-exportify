@@ -45,6 +45,8 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
+    logging.warning("DEPRECATED - please finish and use py-mapzen-whosonfirst-import/wof-importify instead")
+
     obj_args = {
         'debug': options.debug
         }

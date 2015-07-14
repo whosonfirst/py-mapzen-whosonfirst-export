@@ -24,6 +24,8 @@ $> /usr/local/bin/wof-concordify -s /usr/local/mapzen/gaztteer -f 'wof:puid' -c 
 
 ### wof-exportify
 
+**DEPRECATED** - please use (or if necessary finish) the `wof-importify` tool in `py-mapzen-whosonfirst-import` instead.
+
 ```
 $> /usr/local/bin/wof-exportify -d /usr/local/mapzen/gazetteer-local -s openvenues --concordances-db /usr/local/mapzen/gazetteer-concordances/concordances-wofid-wofpuid.db --concordances-key 'wof:puid' --skip --verbose /usr/local/mapzen/openvenues-data/*_*.geojson
 ```
