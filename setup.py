@@ -8,7 +8,7 @@ desc = open("README.md").read(),
 setup(
     name='mapzen.whosonfirst.export',
     namespace_packages=['mapzen', 'mapzen.whosonfirst', 'mapzen.whosonfirst.export'],
-    version='0.4',
+    version='0.5',
     description='Simple Python wrapper for managing Who\'s On First export-related functions',
     author='Mapzen',
     url='https://github.com/thisisaaronland/py-mapzen-whosonfirst-export',
@@ -28,5 +28,5 @@ setup(
     scripts=[
         'scripts/wof-concordify',
         ],
-    download_url='https://github.com/mapzen/py-mapzen-whosonfirst-export/releases/tag/v0.4',
+    download_url='https://github.com/mapzen/py-mapzen-whosonfirst-export/releases/tag/v0.5',
     license='BSD')

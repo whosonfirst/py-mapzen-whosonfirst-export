@@ -125,11 +125,30 @@ class flatfile:
                 return False
 
             props['wof:id'] = wofid
+            f['id'] = wofid
 
         # what time is it?
 
         now = int(time.time())
         props['wof:lastmodified'] = now
+
+        # stubs
+
+        for k in ('supersedes', 'superseded_by', 'hierarchy', 'belongsto', 'breaches'):
+            k = "wof:%s" % k
+
+            if not props.get(k, False):
+                props[k] = []
+
+        # ensure hierarchy contains self
+
+        for h in props['wof:hierarchy']:
+
+            k = "%s_id" % props['wof:placetype']
+            v = props['wof:id']
+
+            if not h.get(k, False):
+                h[k] = v
 
         f['properties'] = props
 
