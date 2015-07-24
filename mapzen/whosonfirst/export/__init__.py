@@ -11,9 +11,11 @@ import logging
 import requests
 import pprint
 import hashlib
+import shapely.geometry
 
 import mapzen.whosonfirst.utils
-import woe.isthat
+
+import woe.isthat	# way deprecated... not that there is anything to replace it with yet (20150724/thisisaaronland)
 
 class flatfile:
 
@@ -149,6 +151,42 @@ class flatfile:
 
             if not h.get(k, False):
                 h[k] = v
+
+        # ensure belongs to
+
+        belongsto = []
+
+        for h in props['wof:hierarchy']:
+
+            for ignore, id in h.items():
+
+                if id != wofid and not id in belongsto:
+                    belongsto.append(id)
+
+        props['wof:belongsto'] = belongsto
+
+        # ensure minimum viable geom: properties
+        # maybe move this in to mapzen.whosonfirst.utils
+        # as we do with bbox ?
+
+        calc_geom = False
+
+        for k in ('area', 'latitude', 'longitude'):
+            k = "geom:%s" % k
+
+            if not props.get(k, False):
+                calc_geom = True
+                break
+
+        if calc_geom:
+
+            shp = shapely.geometry.asShape(f['geometry'])
+            coords = shp.centroid
+            area = shp.area
+
+            props['geom:latitude'] = coords.y
+            props['geom:longitude'] = coords.x
+            props['geom:area'] = area
 
         f['properties'] = props
 
