@@ -99,11 +99,15 @@ class flatfile:
 
         # do we have a concordance with which to help find ourselves ?
 
+        # PLEASE REPLACE ME WITH py-mapzen-whosonfirst-concordances
+        # AS SOON AS IT MAKES SENSE (20150728/thisisaaronland)
+
         if not wofid:
 
             if self.concordances_db:
 
-                lookup = props.get(self.concordances_key, None)
+                concordances = props.get('wof:concordances', {})
+                lookup = concordances.get(self.concordances_key, None)
 
                 if lookup:
                     wofid = self.concordances_db.woe_id(lookup)
