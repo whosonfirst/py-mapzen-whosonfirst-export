@@ -208,7 +208,7 @@ class flatfile:
                 logging.info("concordifying %s with %s" % (wofid, concordance))
                 self.concordances_db.import_concordance(wofid, concordance)
             else:
-                logging.warning("unable to find %s key to concordify with %s" % (self.concordance_key, wofid))
+                logging.warning("unable to find %s key to concordify with %s" % (self.concordances_key, wofid))
 
                 
         #
