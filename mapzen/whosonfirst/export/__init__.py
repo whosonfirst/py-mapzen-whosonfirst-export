@@ -205,12 +205,13 @@ class flatfile:
 
         if self.concordances_db:
 
-            concordance = props.get(self.concordances_key, None)
-            logging.info("%s : %s" % (self.concordances_key, concordance))
+            concordance = props.get('wof:concordances', {})
+            lookup = concordances.get(self.concordances_key, None)
+            logging.info("%s : %s" % (self.concordances_key, lookup))
 
-            if concordance:
-                logging.info("concordifying %s with %s" % (wofid, concordance))
-                self.concordances_db.import_concordance(wofid, concordance)
+            if lookup:
+                logging.info("concordifying %s with %s" % (wofid, lookup))
+                self.concordances_db.import_concordance(wofid, lookup)
             else:
                 logging.warning("unable to find %s key to concordify with %s" % (self.concordances_key, wofid))
 
