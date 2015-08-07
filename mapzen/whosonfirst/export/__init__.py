@@ -95,14 +95,17 @@ class flatfile:
         # have I been here before ?
         # why is the sky blue ?
 
-        wofid = props.get('wof:id', None)
+        wofid = None
+
+        if props.has_key('wof:id'):
+            wofid = props['wof:id']
 
         # do we have a concordance with which to help find ourselves ?
 
         # PLEASE REPLACE ME WITH py-mapzen-whosonfirst-concordances
         # AS SOON AS IT MAKES SENSE (20150728/thisisaaronland)
 
-        if not wofid:
+        if wofid == None:
 
             if self.concordances_db:
 
@@ -120,7 +123,7 @@ class flatfile:
                 else:
                     logging.warning("failed to find concordances key %s" % lookup)
 
-        if not wofid:
+        if wofid == None:
 
             logging.debug("This record has no wofid so now asking what Brooklyn would do...")
 
