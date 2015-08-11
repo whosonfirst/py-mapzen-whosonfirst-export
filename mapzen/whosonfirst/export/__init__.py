@@ -176,6 +176,7 @@ class flatfile:
         # maybe move this in to mapzen.whosonfirst.utils
         # as we do with bbox ?
 
+        """
         calc_geom = False
 
         for k in ('area', 'latitude', 'longitude'):
@@ -184,6 +185,12 @@ class flatfile:
             if not props.get(k, False):
                 calc_geom = True
                 break
+        """
+
+        # just always recalculate the geom properties because it
+        # keeps things simple (20150811/thisisaaronland)
+
+        calc_geom = True
 
         if calc_geom:
 
