@@ -164,7 +164,7 @@ class flatfile:
 
             for ignore, id in h.items():
 
-                if id != wofid and not id in belongsto:
+                if id != wofid and id != -1 and not id in belongsto:
                     belongsto.append(id)
 
         props['wof:belongsto'] = belongsto
