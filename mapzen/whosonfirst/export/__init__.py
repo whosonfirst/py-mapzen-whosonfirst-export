@@ -230,6 +230,10 @@ class flatfile:
 
         return self.write_feature(f, **kwargs)
 
+    def export_alt_features(self, f, alt, **kwargs):
+        
+        return self.write_alt_features(f, alt, **kwargs)
+
     def write_feature(self, f, **kwargs):
 
         path = self.feature_path(f)
@@ -254,12 +258,36 @@ class flatfile:
 
         return True
 
-    def feature_path(self, f):
+    def write_alt_features(self, f, alt, **kwargs):
+
+        path = self.feature_path(f, alt=True)
+        root = os.path.dirname(path)
+
+        if kwargs.get('skip_existing', False) and os.path.exists(path):
+            logging.debug("%s already exists so whatEVAR" % path)
+            return True
+
+        if not os.path.exists(root):
+            os.makedirs(root)
+
+        logging.info("writing %s" % (path))
+
+        try:
+            fh = open(path, 'w')
+            self.write_json(alt, fh)
+            fh.close()
+        except Exception, e:
+            logging.error("failed to write %s, because %s" % (path, e))
+            return False
+
+        return True
+
+    def feature_path(self, f, **kwargs):
 
         props = f['properties']
         wofid = props.get('wof:id', None)
 
-        fname = "%s.geojson" % wofid
+        fname = mapzen.whosonfirst.utils.id2fname(wofid, **kwargs)
         parent = mapzen.whosonfirst.utils.id2path(wofid)
 
         root = os.path.join(self.root, parent)
