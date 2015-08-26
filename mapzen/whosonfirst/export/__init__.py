@@ -14,8 +14,7 @@ import hashlib
 import shapely.geometry
 
 import mapzen.whosonfirst.utils
-
-import woe.isthat	# way deprecated... not that there is anything to replace it with yet (20150724/thisisaaronland)
+import mapzen.whosonfirst.concordances
 
 class flatfile:
 
@@ -30,21 +29,27 @@ class flatfile:
         # a dataset that takes a long time and may need to be
         # restarted.
 
-        concordances_db = kwargs.get('concordances_db', None)
+        concordances = kwargs.get('concordances', False)
+        concordances_dsn = kwargs.get('concordances_dsn', None)
         concordances_key = kwargs.get('concordances_key', None)
 
-        self.concordances_db = None
-        self.concordances_key = None
+        if concordances and not concordances_key:
+            raise Exception, "Missing concordances key"
 
-        if concordances_db:
-
-            if not concordances_key:
-                raise Exception, "You forget to specify a concordances key"
+        if concordances and not concordances_dsn:
+            raise Exception, "Missing concordances DSN"
             
+        if concordances:
+
+            idx = mapzen.whosonfirst.concordances.index(concordances_dsn)
+            qry = mapzen.whosonfirst.concordances.query(concordances_dsn)
+
+            self.concordances_dsn = concordances_dsn
             self.concordances_key = concordances_key
 
-            i = woe.isthat.importer(concordances_db)
-            self.concordances_db = i
+            self.concordances_idx = idx
+            self.concordances_qry = qry
+            self.concordances = True
 
     def export_geojson(self, file, **kwargs):
 
@@ -88,7 +93,6 @@ class flatfile:
         self.massage_feature(f)
         
         props = f['properties']
-
         props['wof:geomhash'] = self.hash_geom(f)
 
         # who am I ?
@@ -107,21 +111,26 @@ class flatfile:
 
         if wofid == None:
 
-            if self.concordances_db:
+            if self.concordances:
 
                 concordances = props.get('wof:concordances', {})
-                lookup = concordances.get(self.concordances_key, None)
 
-                if lookup:
-                    wofid = self.concordances_db.woe_id(lookup)
-                    logging.debug("got %s for %s" % (wofid, lookup))
+                other_src = self.concordances_key
+                other_id = concordances.get(other_src, None)
 
-                    if wofid != 0:
+                if other_id:
+
+                    row = self.concordances_qry.by_other_id(other_id, other_src)
+                    logging.debug("concordance lookup %s for %s" % (wofid, row))
+
+                    if row:
+                        wofid = row[0]
                         props['wof:id'] = wofid
                     else:
                         wofid = None
+
                 else:
-                    logging.warning("failed to find concordances key %s" % lookup)
+                    logging.warning("failed to find concordances key %s:%s" % (other_src, other_id))
 
         if wofid == None:
 
@@ -213,18 +222,16 @@ class flatfile:
 
         # store concordances
 
-        if self.concordances_db:
+        if self.concordances:
 
             concordance = props.get('wof:concordances', {})
-            lookup = concordances.get(self.concordances_key, None)
-            logging.info("%s : %s" % (self.concordances_key, lookup))
+            
+            other_src = self.concordances_key
+            other_id = concordances.get(other_src, None)
 
-            if lookup:
-                logging.info("concordifying %s with %s" % (wofid, lookup))
-                self.concordances_db.import_concordance(wofid, lookup)
-            else:
-                logging.warning("unable to find %s key to concordify with %s" % (self.concordances_key, wofid))
-
+            if other_id:
+                self.concordances_idx.import_concordance(wofid, other_id, other_src)
+                logging.info("concordifying %s with %s:%s" % (wofid, other_src, other_id))
                 
         #
 
