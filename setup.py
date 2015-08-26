@@ -23,7 +23,6 @@ setup(
         ],
     packages=packages,
     scripts=[
-        'scripts/wof-concordify',
         'scripts/wof-exportify',
         ],
     download_url='https://github.com/mapzen/py-mapzen-whosonfirst-export/releases/tag/v0.53',
