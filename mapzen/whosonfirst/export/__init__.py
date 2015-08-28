@@ -29,6 +29,8 @@ class flatfile:
         # a dataset that takes a long time and may need to be
         # restarted.
 
+        self.concordances = False
+
         concordances = kwargs.get('concordances', False)
         concordances_dsn = kwargs.get('concordances_dsn', None)
         concordances_key = kwargs.get('concordances_key', None)
@@ -88,8 +90,6 @@ class flatfile:
 
     def export_feature(self, f, **kwargs):
 
-        mapzen.whosonfirst.utils.ensure_bbox(f)
-
         self.massage_feature(f)
         
         props = f['properties']
@@ -106,9 +106,6 @@ class flatfile:
 
         # do we have a concordance with which to help find ourselves ?
 
-        # PLEASE REPLACE ME WITH py-mapzen-whosonfirst-concordances
-        # AS SOON AS IT MAKES SENSE (20150728/thisisaaronland)
-
         if wofid == None:
 
             if self.concordances:
@@ -121,7 +118,7 @@ class flatfile:
                 if other_id:
 
                     row = self.concordances_qry.by_other_id(other_id, other_src)
-                    logging.debug("concordance lookup %s for %s" % (wofid, row))
+                    logging.debug("concordance lookup %s:%s is %s" % (other_src, other_id, row))
 
                     if row:
                         wofid = row[0]
@@ -185,32 +182,17 @@ class flatfile:
         # maybe move this in to mapzen.whosonfirst.utils
         # as we do with bbox ?
 
-        """
-        calc_geom = False
+        shp = shapely.geometry.asShape(f['geometry'])
+        bbox = list(shp.bounds)
+        coords = shp.centroid
+        area = shp.area
+        
+        props['geom:latitude'] = coords.y
+        props['geom:longitude'] = coords.x
+        props['geom:area'] = area
+        props['geom:bbox'] = ",".join(bbox)
 
-        for k in ('area', 'latitude', 'longitude'):
-            k = "geom:%s" % k
-
-            if not props.get(k, False):
-                calc_geom = True
-                break
-        """
-
-        # just always recalculate the geom properties because it
-        # keeps things simple (20150811/thisisaaronland)
-
-        calc_geom = True
-
-        if calc_geom:
-
-            shp = shapely.geometry.asShape(f['geometry'])
-            coords = shp.centroid
-            area = shp.area
-
-            props['geom:latitude'] = coords.y
-            props['geom:longitude'] = coords.x
-            props['geom:area'] = area
-
+        f['bbox'] = bbox
         f['properties'] = props
 
         if self.debug:
