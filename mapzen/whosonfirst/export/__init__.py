@@ -190,7 +190,7 @@ class flatfile:
         props['geom:latitude'] = coords.y
         props['geom:longitude'] = coords.x
         props['geom:area'] = area
-        props['geom:bbox'] = ",".join(bbox)
+        props['geom:bbox'] = ",".join(map(str, bbox))
 
         f['bbox'] = bbox
         f['properties'] = props
