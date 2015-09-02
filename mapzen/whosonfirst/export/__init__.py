@@ -12,6 +12,7 @@ import requests
 import pprint
 import hashlib
 import shapely.geometry
+import random
 
 import mapzen.whosonfirst.utils
 import mapzen.whosonfirst.concordances
@@ -45,15 +46,51 @@ class flatfile:
 
         if concordances:
 
-            idx = mapzen.whosonfirst.concordances.index(concordances_dsn)
-            qry = mapzen.whosonfirst.concordances.query(concordances_dsn)
-
             self.concordances_dsn = concordances_dsn
             self.concordances_key = concordances_key
 
-            self.concordances_idx = idx
-            self.concordances_qry = qry
+            # because this: http://initd.org/psycopg/docs/usage.html#thread-safety       
+
+            self.concordances_idx_maxconns = 20
+            self.concordances_qry_maxconns = 20
+
+            self.concordances_idx_conns = []
+            self.concordances_qry_conns = []
+
             self.concordances = True
+
+    # see what's going on here? we're invoking and returning new connections
+    # everytime (assuming they will get disconnected when the variables fall
+    # out scope) so that we can not get blocked waiting on postgres when doing
+    # stuff in a multiprocessing environment (20150902/thisisaaronland)
+
+    def concordances_idx(self):
+
+        if len(self.concordances_idx_conns) < self.concordances_idx_maxconns:
+
+            conn = mapzen.whosonfirst.concordances.index(self.concordances_dsn)
+            self.concordances_idx_conns.append(conn)
+
+            logging.debug("return new concordances index connection")
+            return conn
+
+        logging.debug("return existing concordances index connection")
+        random.shuffle(self.concordances_idx_conns)
+        return self.concordances_idx_conns[0]
+
+    def concordances_qry(self):
+
+        if len(self.concordances_qry_conns) < self.concordances_qry_maxconns:
+
+            conn = mapzen.whosonfirst.concordances.query(self.concordances_dsn)
+            self.concordances_qry_conns.append(conn)
+
+            logging.debug("return new concordances query connection")
+            return conn
+
+        logging.debug("return existing concordances query connection")
+        random.shuffle(self.concordances_qry_conns)
+        return self.concordances_qry_conns[0]
 
     def export_geojson(self, file, **kwargs):
 
@@ -119,7 +156,9 @@ class flatfile:
 
                 if other_id:
 
-                    row = self.concordances_qry.by_other_id(other_id, other_src)
+                    qry = self.concordances_qry()
+                    row = qry.by_other_id(other_id, other_src)
+
                     logging.debug("concordance lookup %s:%s is %s" % (other_src, other_id, row))
 
                     if row:
@@ -231,7 +270,8 @@ class flatfile:
             other_id = concordances.get(other_src, None)
 
             if other_id:
-                self.concordances_idx.import_concordance(wofid, other_id, other_src)
+                idx = self.concordances_idx()
+                idx.import_concordance(wofid, other_id, other_src)
                 logging.info("concordifying %s with %s:%s" % (wofid, other_src, other_id))
                 
         #
