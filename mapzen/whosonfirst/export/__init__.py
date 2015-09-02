@@ -40,7 +40,9 @@ class flatfile:
 
         if concordances and not concordances_dsn:
             raise Exception, "Missing concordances DSN"
-            
+
+        logging.debug("enable concordances for exporter: %s" % concordances)
+
         if concordances:
 
             idx = mapzen.whosonfirst.concordances.index(concordances_dsn)
@@ -162,7 +164,7 @@ class flatfile:
             k = "%s_id" % props['wof:placetype']
             v = props['wof:id']
 
-            if not h.get(k, False):
+            if not h.get(k, False) or h[k] == -1:
                 h[k] = v
 
         # ensure belongs to
@@ -177,6 +179,15 @@ class flatfile:
                     belongsto.append(id)
 
         props['wof:belongsto'] = belongsto
+
+        # ensure tags
+
+        tags = props.get('wof:tags', [])
+        props['wof:tags'] = tags
+
+        # ensure wof:country
+
+        props['wof:country'] = props.get('iso:country', '')
 
         # ensure minimum viable geom: properties
         # maybe move this in to mapzen.whosonfirst.utils
@@ -196,11 +207,19 @@ class flatfile:
         f['properties'] = props
 
         if self.debug:
-            logging.info("debugging is enabled so not writing anything to disk...")
-            logging.info("if I did though I would write stuff to %s" % (self.feature_path(f)))
 
-            logging.info(pprint.pformat(props))
-            return True
+            path = self.feature_path(f)
+
+            logging.info("debugging is enabled so not writing anything to disk...")
+            logging.info("if I did though I would write stuff to %s" % path)
+            logging.debug(pprint.pformat(props))
+
+            root = os.path.dirname(path)
+            fname = os.path.basename(path)
+            fname = "DEBUG-%s" % fname
+            path = os.path.join(root, fname)
+
+            return path
 
         # store concordances
 
@@ -230,7 +249,7 @@ class flatfile:
 
         if kwargs.get('skip_existing', False) and os.path.exists(path):
             logging.debug("%s already exists so whatEVAR" % path)
-            return True
+            return path
 
         if not os.path.exists(root):
             os.makedirs(root)
@@ -243,9 +262,9 @@ class flatfile:
             fh.close()
         except Exception, e:
             logging.error("failed to write %s, because %s" % (path, e))
-            return False
+            return None
 
-        return True
+        return path
 
     def write_alt_features(self, f, alt, **kwargs):
 
