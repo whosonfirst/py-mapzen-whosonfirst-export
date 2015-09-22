@@ -14,6 +14,7 @@ if __name__ == '__main__':
 
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='')
     opt_parser.add_option('-i', '--id', dest='id', action='store', default=None, help='')
+    opt_parser.add_option('--indent', dest='indent', action='store', default=2, help='')
 
     opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
 
@@ -27,9 +28,14 @@ if __name__ == '__main__':
     source = os.path.abspath(options.source)
     id = int(options.id)
 
+    indent = int(options.indent)
+
+    if indent <= 0:
+        indent = None
+
     exporter = mapzen.whosonfirst.export.flatfile(source)
 
     feature = mapzen.whosonfirst.utils.load(source, id)
-    exporter.export_feature(feature)
+    exporter.export_feature(feature, indent=indent)
 
     sys.exit()

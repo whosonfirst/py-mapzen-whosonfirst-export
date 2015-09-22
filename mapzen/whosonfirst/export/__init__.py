@@ -284,6 +284,8 @@ class flatfile:
 
     def write_feature(self, f, **kwargs):
 
+        indent = kwargs.get('indent', 2)
+
         path = self.feature_path(f)
         root = os.path.dirname(path)
 
@@ -298,7 +300,7 @@ class flatfile:
 
         try:
             fh = open(path, 'w')
-            self.write_json(f, fh)
+            self.write_json(f, fh, indent=indent)
             fh.close()
         except Exception, e:
             logging.error("failed to write %s, because %s" % (path, e))
