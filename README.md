@@ -2,22 +2,13 @@
 
 Export tools for the Who's On First
 
-## Install
+## IMPORTANT
 
-Depending on which version of rage-making Python or more likely the rage-making-er `setuptools` you are using you may need to expicitly tell the install script to put the command line tools in `/usr/local/bin` like this:
+This library is provided as-is, right now. It lacks proper
+documentation which will probably make it hard for you to use unless
+you are willing to poke and around and investigate things on your
+own.
 
-```
-sudo python ./setup.py install --install-scripts /usr/local/bin
-```
+## See also
 
-## Usage
-
-_Please write me_
-
-## Command line tools
-
-### wof-concordify
-
-```
-$> /usr/local/bin/wof-concordify -s /usr/local/mapzen/gaztteer -f 'wof:puid' -c /usr/local/mapzen/gazetteer-concordances/concordances-wofid-wofpuid.csv
-```
+* https://github.com/whosonfirst/whosonfirst-data/
