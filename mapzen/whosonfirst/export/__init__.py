@@ -351,7 +351,7 @@ class flatfile:
         float_pat = re.compile(r'^-?\d+\.\d+(e-?\d+)?$')
         charfloat_pat = re.compile(r'^[\[,\,]-?\d+\.\d+(e-?\d+)?$')
 
-        encoder = json.JSONEncoder(separators=(',', ':'))
+        encoder = json.JSONEncoder(separators=(',', ':'), indent=indent)
         encoded = encoder.iterencode(data)
     
         for token in encoded:
