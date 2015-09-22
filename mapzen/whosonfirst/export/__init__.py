@@ -196,6 +196,14 @@ class flatfile:
             if not props.get(k, False):
                 props[k] = []
 
+        # ensure edtf stuff
+
+        for k in ('inception', 'cessation'):
+            k = "edtf:%s" % k
+
+            if not props.has_key(k):
+                props[k] = "u"	# section 5.2.2 (EDTF)
+
         # ensure hierarchy contains self
 
         for h in props['wof:hierarchy']:
