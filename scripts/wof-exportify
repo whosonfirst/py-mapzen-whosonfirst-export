@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='')
     opt_parser.add_option('-i', '--id', dest='id', action='store', default=None, help='')
-    opt_parser.add_option('--indent', dest='indent', action='store', default=2, help='')
+    opt_parser.add_option('--indent', dest='indent', action='store', default=0, help='')
 
     opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
 
