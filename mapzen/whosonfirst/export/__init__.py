@@ -16,14 +16,7 @@ import random
 
 import mapzen.whosonfirst.utils
 import mapzen.whosonfirst.concordances
-
-class wofencoder (json.JSONEncoder):
-
-    # https://stackoverflow.com/questions/13249415/can-i-implement-custom-indentation-for-pretty-printing-in-python-s-json-module
-    # this is not being invoked because we are using an iterencoder below... (20150922/thisisaaronland)
-    
-    def default(self, obj):
-        return json.JSONEncoder.default(self, obj)
+import mapzen.whosonfirst.geojson
 
 class flatfile:
 
@@ -33,6 +26,11 @@ class flatfile:
         self.root = path
 
         self.debug = kwargs.get('debug', False)
+
+        # the thing that actually generates the geojson
+        # we write to disk
+        encoder = mapzen.whosonfirst.geojson.encoder()
+        self.encoder = encoder
 
         # concordances stuff - for when we are plowing through
         # a dataset that takes a long time and may need to be
@@ -319,7 +317,10 @@ class flatfile:
 
         try:
             fh = open(path, 'w')
-            self.write_json(f, fh, indent=indent)
+
+            self.encoder.encode_feature(f, fh)
+            # self.write_json(f, fh, indent=indent)
+
             fh.close()
         except Exception, e:
             logging.error("failed to write %s, because %s" % (path, e))
@@ -343,6 +344,13 @@ class flatfile:
 
         try:
             fh = open(path, 'w')
+
+            # PLEASE TO BE UPDATING THE MAPZEN geojson.encoder CLASS TO
+            # EXPORT FeatureCollections. SEE ALSO BELOW.
+            # (20150923/thisisaaronland)
+
+            # self.encoder.encode_feature_collection(f, fh)
+
             self.write_json(alt, fh)
             fh.close()
         except Exception, e:
@@ -364,6 +372,10 @@ class flatfile:
 
         return path
 
+    # THIS IS DEPRECATED - IT IS STILL HERE BECAUSE THE MAPZEN geojson.encoder
+    # CLASS HAS NOT BEEN TAUGHT TO DEAL WITH FeatureCollections. BUT IT SHOULD
+    # ME (20150923/thisisaaronland)
+
     def write_json(self, data, out, indent=None): 
 
         # From TileStache's vectiles GeoJSON encoder thingy
@@ -372,13 +384,8 @@ class flatfile:
         float_pat = re.compile(r'^-?\d+\.\d+(e-?\d+)?$')
         charfloat_pat = re.compile(r'^[\[,\,]-?\d+\.\d+(e-?\d+)?$')
 
-        # encoder = json.JSONEncoder(separators=(',', ':'), indent=indent)
-
-        encoder = wofencoder(separators=(',', ':'), indent=indent)
+        encoder = json.JSONEncoder(separators=(',', ':'), indent=indent)
         encoded = encoder.iterencode(data)
-
-        # TO DO (for geometries) : https://stackoverflow.com/questions/13249415/can-i-implement-custom-indentation-for-pretty-printing-in-python-s-json-module
-        # see also: https://pymotw.com/2/json/ (20150922/thisisaaronland)
 
         for token in encoded:
 
