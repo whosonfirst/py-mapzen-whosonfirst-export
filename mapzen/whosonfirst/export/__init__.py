@@ -196,6 +196,9 @@ class flatfile:
         now = int(time.time())
         props['wof:lastmodified'] = now
 
+        # TO DO: FIGURE OUT HOW TO DERIVE DEFAULTS FROM
+        # py-mapzen-whosonfirst-validator (20150922/thisisaaronland)
+
         # stubs
 
         for k in ('supersedes', 'superseded_by', 'hierarchy', 'belongsto', 'breaches'):
@@ -210,7 +213,7 @@ class flatfile:
             k = "edtf:%s" % k
 
             if not props.has_key(k):
-                props[k] = "u"	# section 5.2.2 (EDTF)
+                props[k] = u"u"	# section 5.2.2 (EDTF)
 
         # ensure hierarchy contains self
 
