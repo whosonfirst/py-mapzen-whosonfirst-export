@@ -13,6 +13,7 @@ import pprint
 import hashlib
 import shapely.geometry
 import random
+import atomicwrites
 
 import mapzen.whosonfirst.utils
 import mapzen.whosonfirst.concordances
@@ -101,6 +102,7 @@ class flatfile:
     def export_geojson(self, file, **kwargs):
 
         path = os.path.abspath(file)
+
         fh = open(path, 'r')
         
         if kwargs.get('line_delimited', False):
@@ -316,12 +318,10 @@ class flatfile:
         logging.info("writing %s" % (path))
 
         try:
-            fh = open(path, 'w')
 
-            self.encoder.encode_feature(f, fh)
-            # self.write_json(f, fh, indent=indent)
+            with atomicwrites.atomic_write(path, overwrite=True) as fh:
+                self.encoder.encode_feature(f, fh)
 
-            fh.close()
         except Exception, e:
             logging.error("failed to write %s, because %s" % (path, e))
             return None
@@ -343,16 +343,16 @@ class flatfile:
         logging.info("writing %s" % (path))
 
         try:
-            fh = open(path, 'w')
 
-            # PLEASE TO BE UPDATING THE MAPZEN geojson.encoder CLASS TO
-            # EXPORT FeatureCollections. SEE ALSO BELOW.
-            # (20150923/thisisaaronland)
+            with atomicwrites.atomic_write(path, overwrite=True) as fh:
 
-            # self.encoder.encode_feature_collection(f, fh)
+                # PLEASE TO BE UPDATING THE MAPZEN geojson.encoder CLASS TO
+                # EXPORT FeatureCollections. SEE ALSO BELOW.
+                # (20150923/thisisaaronland)
+                # self.encoder.encode_feature_collection(f, fh)
 
-            self.write_json(alt, fh)
-            fh.close()
+                self.write_json(alt, fh)
+
         except Exception, e:
             logging.error("failed to write %s, because %s" % (path, e))
             return False
