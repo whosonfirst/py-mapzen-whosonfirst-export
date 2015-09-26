@@ -46,7 +46,7 @@ if __name__ == '__main__':
     rpt = vld.validate_feature(feature)
 
     if not rpt.ok():
-        logging.error("validation failed")
+        logging.error("validation failed for feature")
         sys.exit()
 
     exporter.export_feature(feature)
