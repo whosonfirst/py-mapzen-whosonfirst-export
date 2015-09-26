@@ -4,6 +4,7 @@ import sys
 import os.path
 import logging
 import geojson
+import StringIO
 
 import mapzen.whosonfirst.utils
 import mapzen.whosonfirst.export
@@ -47,6 +48,15 @@ if __name__ == '__main__':
 
     if not rpt.ok():
         logging.error("validation failed for feature")
+
+        if options.verbose:	
+
+            fh = StringIO.StringIO()
+            rpt.print_report(fh)
+            fh.seek(0)
+            
+            logging.debug(fh.readlines())
+
         sys.exit()
 
     exporter.export_feature(feature)
