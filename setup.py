@@ -8,7 +8,7 @@ desc = open("README.md").read(),
 setup(
     name='mapzen.whosonfirst.export',
     namespace_packages=['mapzen', 'mapzen.whosonfirst', 'mapzen.whosonfirst.export'],
-    version='0.58',
+    version='0.59',
     description='Simple Python wrapper for managing Who\'s On First export-related functions',
     author='Mapzen',
     url='https://github.com/thisisaaronland/py-mapzen-whosonfirst-export',
@@ -22,10 +22,13 @@ setup(
         'mapzen.whosonfirst.validator',
         ],
     dependency_links=[
+        'https://github.com/whosonfirst/py-mapzen-whosonfirst-utils/tarball/master#egg=mapzen.whosonfirst.utils-0.04',
+        'https://github.com/whosonfirst/py-mapzen-whosonfirst-geojson/tarball/master#egg=mapzen.whosonfirst.geojson-0.03',
+        'https://github.com/whosonfirst/py-mapzen-whosonfirst-validator/tarball/master#egg=mapzen.whosonfirst.validator-0.01',
         ],
     packages=packages,
     scripts=[
         'scripts/wof-exportify',
         ],
-    download_url='https://github.com/mapzen/py-mapzen-whosonfirst-export/releases/tag/v0.58',
+    download_url='https://github.com/mapzen/py-mapzen-whosonfirst-export/releases/tag/v0.59',
     license='BSD')
