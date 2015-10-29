@@ -296,21 +296,21 @@ class flatfile:
 
         return self.write_feature(f, **kwargs)
 
-    def export_alt_features(self, f, alt, **kwargs):
+    def export_alt_features(self, f, **kwargs):
 
         idx = 0
 
         for _f in f['features']:
 
             _props = _f['properties']
-            _props['wof:geomhash'] = self.hash_geom(_f)
+            _props['wof:geomhash'] = mapzen.whosonfirst.utils.hash_geom(_f)
 
             _f['properties'] = _props
 
             f['features'][idx] = _f
             idx += 1
 
-        return self.write_alt_features(f, alt, **kwargs)
+        return self.write_alt_features(f, **kwargs)
 
     def write_feature(self, f, **kwargs):
 
@@ -339,7 +339,7 @@ class flatfile:
 
         return path
 
-    def write_alt_features(self, f, alt, **kwargs):
+    def write_alt_features(self, f, **kwargs):
 
         path = self.feature_path(f, alt=True)
         root = os.path.dirname(path)
@@ -362,7 +362,7 @@ class flatfile:
                 # (20150923/thisisaaronland)
                 # self.encoder.encode_feature_collection(f, fh)
 
-                self.write_json(alt, fh)
+                self.write_json(f, fh)
 
         except Exception, e:
             logging.error("failed to write %s, because %s" % (path, e))
@@ -372,8 +372,25 @@ class flatfile:
 
     def feature_path(self, f, **kwargs):
 
-        props = f['properties']
-        wofid = props.get('wof:id', None)
+        wofid = None
+
+        if f['type'] == 'Feature':
+            props = f['properties']
+            wofid = props.get('wof:id', None)
+
+        elif f['type'] == 'FeatureCollection':
+            
+            for _f in f['features']:
+                props = _f['properties']
+                wofid = props.get('wof:id', None)
+
+                if wofid:
+                    break
+        else:
+            pass
+
+        if not wofid:
+            raise Exception, "Missing WOF ID"
 
         fname = mapzen.whosonfirst.utils.id2fname(wofid, **kwargs)
         parent = mapzen.whosonfirst.utils.id2path(wofid)
@@ -400,6 +417,12 @@ class flatfile:
 
         for token in encoded:
 
+            # SEE ABOVE INRE NOTES ABOUT THE MAPZEN geojson.encoder CLASS
+            # (20151029/thisisaaronland)
+
+            out.write(token)
+
+            """
             if charfloat_pat.match(token):
                 # in python 2.7, we see a character followed by a float literal
                 out.write(token[0] + '%.6f' % float(token[1:]))
@@ -410,17 +433,9 @@ class flatfile:
         
             else:
                 out.write(token)
+            """
 
     # This is left to subclasses to define
 
     def massage_feature(self, f):
         pass
-
-    def hash_geom(self, f):
-
-        geom = f['geometry']
-        geom = json.dumps(geom)
-
-        hash = hashlib.md5()
-        hash.update(geom)
-        return hash.hexdigest()
