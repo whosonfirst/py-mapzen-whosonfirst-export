@@ -10,7 +10,6 @@ import geojson
 import logging
 import requests
 import pprint
-import hashlib
 import shapely.geometry
 import random
 import atomicwrites
@@ -140,7 +139,7 @@ class flatfile:
         self.massage_feature(f)
         
         props = f['properties']
-        props['wof:geomhash'] = self.hash_geom(f)
+        props['wof:geomhash'] = mapzen.whosonfirst.utils.hash_geom(f)
 
         # who am I ?
         # have I been here before ?
