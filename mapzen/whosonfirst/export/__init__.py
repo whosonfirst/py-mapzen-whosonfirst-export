@@ -298,7 +298,19 @@ class flatfile:
         return self.write_feature(f, **kwargs)
 
     def export_alt_features(self, f, alt, **kwargs):
-        
+
+        idx = 0
+
+        for _f in f['features']:
+
+            _props = _f['properties']
+            _props['wof:geomhash'] = self.hash_geom(_f)
+
+            _f['properties'] = _props
+
+            f['features'][idx] = _f
+            idx += 1
+
         return self.write_alt_features(f, alt, **kwargs)
 
     def write_feature(self, f, **kwargs):
