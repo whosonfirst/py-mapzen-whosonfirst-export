@@ -15,7 +15,6 @@ import random
 import atomicwrites
 
 import mapzen.whosonfirst.utils
-import mapzen.whosonfirst.concordances
 import mapzen.whosonfirst.geojson
 
 class flatfile:
@@ -51,6 +50,12 @@ class flatfile:
         logging.debug("enable concordances for exporter: %s" % concordances)
 
         if concordances:
+
+            try:
+                import mapzen.whosonfirst.concordances
+            except Exception, e:
+                logging.error("failed to import mapzen.whosonfirst.concordances because %s" % e)
+                raise Exception, e
 
             self.concordances_dsn = concordances_dsn
             self.concordances_key = concordances_key
