@@ -14,8 +14,11 @@ import shapely.geometry
 import random
 import atomicwrites
 
-import mapzen.whosonfirst.utils
-import mapzen.whosonfirst.geojson
+# See this - it's because of some hair-brained nonsense importing
+# things in OS X... I have no idea, honestly (20151109/thisisaaronland)
+
+import mapzen.whosonfirst.utils as u
+import mapzen.whosonfirst.geojson as g
 
 class flatfile:
 
@@ -28,7 +31,8 @@ class flatfile:
 
         # the thing that actually generates the geojson
         # we write to disk
-        encoder = mapzen.whosonfirst.geojson.encoder()
+
+        encoder = g.encoder()
         self.encoder = encoder
 
         # concordances stuff - for when we are plowing through
@@ -144,7 +148,7 @@ class flatfile:
         self.massage_feature(f)
         
         props = f['properties']
-        props['wof:geomhash'] = mapzen.whosonfirst.utils.hash_geom(f)
+        props['wof:geomhash'] = u.hash_geom(f)
 
         # who am I ?
         # have I been here before ?
@@ -186,7 +190,7 @@ class flatfile:
 
             logging.debug("This record has no wofid so now asking what Brooklyn would do...")
 
-            wofid = mapzen.whosonfirst.utils.generate_id()
+            wofid = u.generate_id()
 
             if wofid == 0:
                 logging.error("OH NO - can't get integer!")
@@ -308,7 +312,7 @@ class flatfile:
         for _f in f['features']:
 
             _props = _f['properties']
-            _props['wof:geomhash'] = mapzen.whosonfirst.utils.hash_geom(_f)
+            _props['wof:geomhash'] = u.hash_geom(_f)
 
             _f['properties'] = _props
 
@@ -397,8 +401,8 @@ class flatfile:
         if not wofid:
             raise Exception, "Missing WOF ID"
 
-        fname = mapzen.whosonfirst.utils.id2fname(wofid, **kwargs)
-        parent = mapzen.whosonfirst.utils.id2path(wofid)
+        fname = u.id2fname(wofid, **kwargs)
+        parent = u.id2path(wofid)
 
         root = os.path.join(self.root, parent)
         path = os.path.join(root, fname)
