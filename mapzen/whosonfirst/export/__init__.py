@@ -57,9 +57,9 @@ class flatfile:
         if self.concordances and not self.concordances_dsn:
             raise Exception, "Missing concordances DSN"
 
-        logging.debug("enable concordances for exporter: %s" % concordances)
+        logging.debug("enable concordances for exporter: %s" % self.concordances)
 
-        if concordances:
+        if self.concordances:
 
             try:
                 import mapzen.whosonfirst.concordances
