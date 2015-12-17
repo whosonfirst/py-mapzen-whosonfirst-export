@@ -36,34 +36,25 @@ class flatfile:
         # a dataset that takes a long time and may need to be
         # restarted.
 
-        self.concordances = False
+        self.concordances = kwargs.get('concordances', False)
+        self.concordances_dsn = kwargs.get('concordances_dsn', None)
+        self.concordances_key = kwargs.get('concordances_key', None)
 
-        concordances = kwargs.get('concordances', False)
-        concordances_dsn = kwargs.get('concordances_dsn', None)
-        concordances_key = kwargs.get('concordances_key', None)
+        # because this: http://initd.org/psycopg/docs/usage.html#thread-safety       
 
-        if concordances and not concordances_key:
+        self.concordances_idx_maxconns = 20
+        self.concordances_qry_maxconns = 20
+        
+        self.concordances_idx_conns = []
+        self.concordances_qry_conns = []
+
+        if self.concordances and not self.concordances_key:
             raise Exception, "Missing concordances key"
 
-        if concordances and not concordances_dsn:
+        if self.concordances and not self.concordances_dsn:
             raise Exception, "Missing concordances DSN"
 
-        logging.debug("enable concordances for exporter: %s" % concordances)
-
-        if concordances:
-
-            self.concordances_dsn = concordances_dsn
-            self.concordances_key = concordances_key
-
-            # because this: http://initd.org/psycopg/docs/usage.html#thread-safety       
-
-            self.concordances_idx_maxconns = 20
-            self.concordances_qry_maxconns = 20
-
-            self.concordances_idx_conns = []
-            self.concordances_qry_conns = []
-
-            self.concordances = True
+        logging.debug("enable concordances for exporter: %s" % self.concordances)
 
     # see what's going on here? we're invoking and returning new connections
     # everytime (assuming they will get disconnected when the variables fall
