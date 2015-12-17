@@ -14,9 +14,11 @@ import shapely.geometry
 import random
 import atomicwrites
 
-import mapzen.whosonfirst.utils
-import mapzen.whosonfirst.concordances
-import mapzen.whosonfirst.geojson
+# See this - it's because of some hair-brained nonsense importing
+# things in OS X... I have no idea, honestly (20151109/thisisaaronland)
+
+import mapzen.whosonfirst.utils as u
+import mapzen.whosonfirst.geojson as g
 
 class flatfile:
 
@@ -29,7 +31,8 @@ class flatfile:
 
         # the thing that actually generates the geojson
         # we write to disk
-        encoder = mapzen.whosonfirst.geojson.encoder()
+
+        encoder = g.encoder()
         self.encoder = encoder
 
         # concordances stuff - for when we are plowing through
@@ -54,7 +57,28 @@ class flatfile:
         if self.concordances and not self.concordances_dsn:
             raise Exception, "Missing concordances DSN"
 
-        logging.debug("enable concordances for exporter: %s" % self.concordances)
+        logging.debug("enable concordances for exporter: %s" % concordances)
+
+        if concordances:
+
+            try:
+                import mapzen.whosonfirst.concordances
+            except Exception, e:
+                logging.error("failed to import mapzen.whosonfirst.concordances because %s" % e)
+                raise Exception, e
+
+            self.concordances_dsn = concordances_dsn
+            self.concordances_key = concordances_key
+
+            # because this: http://initd.org/psycopg/docs/usage.html#thread-safety       
+
+            self.concordances_idx_maxconns = 20
+            self.concordances_qry_maxconns = 20
+
+            self.concordances_idx_conns = []
+            self.concordances_qry_conns = []
+
+            self.concordances = True
 
     # see what's going on here? we're invoking and returning new connections
     # everytime (assuming they will get disconnected when the variables fall
@@ -130,7 +154,7 @@ class flatfile:
         self.massage_feature(f)
         
         props = f['properties']
-        props['wof:geomhash'] = mapzen.whosonfirst.utils.hash_geom(f)
+        props['wof:geomhash'] = u.hash_geom(f)
 
         # who am I ?
         # have I been here before ?
@@ -172,7 +196,7 @@ class flatfile:
 
             logging.debug("This record has no wofid so now asking what Brooklyn would do...")
 
-            wofid = mapzen.whosonfirst.utils.generate_id()
+            wofid = u.generate_id()
 
             if wofid == 0:
                 logging.error("OH NO - can't get integer!")
@@ -294,7 +318,7 @@ class flatfile:
         for _f in f['features']:
 
             _props = _f['properties']
-            _props['wof:geomhash'] = mapzen.whosonfirst.utils.hash_geom(_f)
+            _props['wof:geomhash'] = u.hash_geom(_f)
 
             _f['properties'] = _props
 
@@ -383,8 +407,8 @@ class flatfile:
         if not wofid:
             raise Exception, "Missing WOF ID"
 
-        fname = mapzen.whosonfirst.utils.id2fname(wofid, **kwargs)
-        parent = mapzen.whosonfirst.utils.id2path(wofid)
+        fname = u.id2fname(wofid, **kwargs)
+        parent = u.id2path(wofid)
 
         root = os.path.join(self.root, parent)
         path = os.path.join(root, fname)
