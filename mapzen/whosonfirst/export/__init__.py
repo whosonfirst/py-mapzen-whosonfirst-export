@@ -311,21 +311,14 @@ class flatfile:
 
         return self.write_feature(f, **kwargs)
 
-    def export_alt_features(self, f, **kwargs):
+    def export_alt_feature(self, f, **kwargs):
 
-        idx = 0
+        _props = wof['properties']
+        _props['wof:geomhash'] = u.hash_geom(_f)
 
-        for _f in f['features']:
+        f['properties'] = _props
 
-            _props = _f['properties']
-            _props['wof:geomhash'] = u.hash_geom(_f)
-
-            _f['properties'] = _props
-
-            f['features'][idx] = _f
-            idx += 1
-
-        return self.write_alt_features(f, **kwargs)
+        return self.write_feature(f, **kwargs)
 
     def write_feature(self, f, **kwargs):
 
@@ -353,37 +346,6 @@ class flatfile:
             return None
 
         return path
-
-    def write_alt_features(self, f, **kwargs):
-
-        path = self.feature_path(f, alt=True)
-        root = os.path.dirname(path)
-
-        if kwargs.get('skip_existing', False) and os.path.exists(path):
-            logging.debug("%s already exists so whatEVAR" % path)
-            return True
-
-        if not os.path.exists(root):
-            os.makedirs(root)
-
-        logging.info("writing %s" % (path))
-
-        try:
-
-            with atomicwrites.atomic_write(path, overwrite=True) as fh:
-
-                # PLEASE TO BE UPDATING THE MAPZEN geojson.encoder CLASS TO
-                # EXPORT FeatureCollections. SEE ALSO BELOW.
-                # (20150923/thisisaaronland)
-                # self.encoder.encode_feature_collection(f, fh)
-
-                self.write_json(f, fh)
-
-        except Exception, e:
-            logging.error("failed to write %s, because %s" % (path, e))
-            return False
-
-        return True
 
     def feature_path(self, f, **kwargs):
 
@@ -414,41 +376,6 @@ class flatfile:
         path = os.path.join(root, fname)
 
         return path
-
-    # THIS IS DEPRECATED - IT IS STILL HERE BECAUSE THE MAPZEN geojson.encoder
-    # CLASS HAS NOT BEEN TAUGHT TO DEAL WITH FeatureCollections. BUT IT SHOULD
-    # ME (20150923/thisisaaronland)
-
-    def write_json(self, data, out, indent=None): 
-
-        # From TileStache's vectiles GeoJSON encoder thingy
-        # (20130317/straup)
-
-        float_pat = re.compile(r'^-?\d+\.\d+(e-?\d+)?$')
-        charfloat_pat = re.compile(r'^[\[,\,]-?\d+\.\d+(e-?\d+)?$')
-
-        encoder = json.JSONEncoder(separators=(',', ':'), indent=indent)
-        encoded = encoder.iterencode(data)
-
-        for token in encoded:
-
-            # SEE ABOVE INRE NOTES ABOUT THE MAPZEN geojson.encoder CLASS
-            # (20151029/thisisaaronland)
-
-            out.write(token)
-
-            """
-            if charfloat_pat.match(token):
-                # in python 2.7, we see a character followed by a float literal
-                out.write(token[0] + '%.6f' % float(token[1:]))
-        
-            elif float_pat.match(token):
-                # in python 2.6, we see a simple float literal
-                out.write('%.6f' % float(token))
-        
-            else:
-                out.write(token)
-            """
 
     # This is left to subclasses to define
 
