@@ -316,15 +316,21 @@ class flatfile:
         _props = f['properties']
         _props['wof:geomhash'] = u.hash_geom(f)
 
+        f['id'] = _props['wof:id']
+
         f['properties'] = _props
 
+        shp = shapely.geometry.asShape(f['geometry'])
+        bbox = list(shp.bounds)
+
+        f['bbox'] = bbox
         return self.write_feature(f, **kwargs)
 
     def write_feature(self, f, **kwargs):
 
         indent = kwargs.get('indent', None)
 
-        path = self.feature_path(f)
+        path = self.feature_path(f, **kwargs)
         root = os.path.dirname(path)
 
         if kwargs.get('skip_existing', False) and os.path.exists(path):
