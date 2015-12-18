@@ -313,8 +313,8 @@ class flatfile:
 
     def export_alt_feature(self, f, **kwargs):
 
-        _props = wof['properties']
-        _props['wof:geomhash'] = u.hash_geom(_f)
+        _props = f['properties']
+        _props['wof:geomhash'] = u.hash_geom(f)
 
         f['properties'] = _props
 
