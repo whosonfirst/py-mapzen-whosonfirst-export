@@ -226,8 +226,16 @@ class flatfile:
         for k in ('inception', 'cessation'):
             k = "edtf:%s" % k
 
+            # section 5.2.2 (EDTF)
+
             if not props.has_key(k):
-                props[k] = u"u"	# section 5.2.2 (EDTF)
+                props[k] = u"uuuu"	
+
+            # my bad - just adding it here in advance of a proper
+            # backfill (20160107/thisisaaronland)
+
+            if props.(k) == "u":
+                props[k] = u"uuuu"
 
         # ensure hierarchy contains self
 
