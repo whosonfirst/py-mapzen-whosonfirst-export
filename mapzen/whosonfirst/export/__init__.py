@@ -234,7 +234,7 @@ class flatfile:
             # my bad - just adding it here in advance of a proper
             # backfill (20160107/thisisaaronland)
 
-            if props.(k) == "u":
+            if props.get(k) == "u":
                 props[k] = u"uuuu"
 
         # ensure hierarchy contains self
