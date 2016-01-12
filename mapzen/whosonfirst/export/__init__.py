@@ -380,7 +380,11 @@ class flatfile:
         else:
             pass
 
-        if not wofid:
+        # Because remember we made life hard for ourselves by making
+        # the Earth WOF ID... zero. Good times.
+        # (20160112/thisisaaronland)
+
+        if wofid == None:
             raise Exception, "Missing WOF ID"
 
         fname = u.id2fname(wofid, **kwargs)
