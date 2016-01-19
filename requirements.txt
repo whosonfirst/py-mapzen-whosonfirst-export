@@ -1,0 +1,7 @@
+requests
+geojson
+shapely
+atomicwrites
+git+git://github.com/whosonfirst/py-mapzen-whosonfirst-utils
+git+git://github.com/whosonfirst/py-mapzen-whosonfirst-geojson
+git+git://github.com/whosonfirst/py-mapzen-whosonfirst-validator
