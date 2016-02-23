@@ -35,84 +35,6 @@ class flatfile:
         encoder = g.encoder()
         self.encoder = encoder
 
-        # concordances stuff - for when we are plowing through
-        # a dataset that takes a long time and may need to be
-        # restarted.
-
-        self.concordances = kwargs.get('concordances', False)
-        self.concordances_dsn = kwargs.get('concordances_dsn', None)
-        self.concordances_key = kwargs.get('concordances_key', None)
-
-        # because this: http://initd.org/psycopg/docs/usage.html#thread-safety       
-
-        self.concordances_idx_maxconns = 20
-        self.concordances_qry_maxconns = 20
-        
-        self.concordances_idx_conns = []
-        self.concordances_qry_conns = []
-
-        if self.concordances and not self.concordances_key:
-            raise Exception, "Missing concordances key"
-
-        if self.concordances and not self.concordances_dsn:
-            raise Exception, "Missing concordances DSN"
-
-        logging.debug("enable concordances for exporter: %s" % self.concordances)
-
-        if self.concordances:
-
-            try:
-                import mapzen.whosonfirst.concordances
-            except Exception, e:
-                logging.error("failed to import mapzen.whosonfirst.concordances because %s" % e)
-                raise Exception, e
-
-            self.concordances_dsn = concordances_dsn
-            self.concordances_key = concordances_key
-
-            # because this: http://initd.org/psycopg/docs/usage.html#thread-safety       
-
-            self.concordances_idx_maxconns = 20
-            self.concordances_qry_maxconns = 20
-
-            self.concordances_idx_conns = []
-            self.concordances_qry_conns = []
-
-            self.concordances = True
-
-    # see what's going on here? we're invoking and returning new connections
-    # everytime (assuming they will get disconnected when the variables fall
-    # out scope) so that we can not get blocked waiting on postgres when doing
-    # stuff in a multiprocessing environment (20150902/thisisaaronland)
-
-    def concordances_idx(self):
-
-        if len(self.concordances_idx_conns) < self.concordances_idx_maxconns:
-
-            conn = mapzen.whosonfirst.concordances.index(self.concordances_dsn)
-            self.concordances_idx_conns.append(conn)
-
-            logging.debug("return new concordances index connection")
-            return conn
-
-        logging.debug("return existing concordances index connection")
-        random.shuffle(self.concordances_idx_conns)
-        return self.concordances_idx_conns[0]
-
-    def concordances_qry(self):
-
-        if len(self.concordances_qry_conns) < self.concordances_qry_maxconns:
-
-            conn = mapzen.whosonfirst.concordances.query(self.concordances_dsn)
-            self.concordances_qry_conns.append(conn)
-
-            logging.debug("return new concordances query connection")
-            return conn
-
-        logging.debug("return existing concordances query connection")
-        random.shuffle(self.concordances_qry_conns)
-        return self.concordances_qry_conns[0]
-
     def export_geojson(self, file, **kwargs):
 
         path = os.path.abspath(file)
@@ -165,32 +87,7 @@ class flatfile:
         if props.has_key('wof:id'):
             wofid = props['wof:id']
 
-        # do we have a concordance with which to help find ourselves ?
-
-        if wofid == None:
-
-            if self.concordances:
-
-                concordances = props.get('wof:concordances', {})
-
-                other_src = self.concordances_key
-                other_id = concordances.get(other_src, None)
-
-                if other_id:
-
-                    qry = self.concordances_qry()
-                    row = qry.by_other_id(other_id, other_src)
-
-                    logging.debug("concordance lookup %s:%s is %s" % (other_src, other_id, row))
-
-                    if row:
-                        wofid = row[0]
-                        props['wof:id'] = wofid
-                    else:
-                        wofid = None
-
-                else:
-                    logging.warning("failed to find concordances key %s:%s" % (other_src, other_id))
+        # PLEASE UPDATE ME TO DO CONCORDANCES AGAIN, YEAH?
 
         if wofid == None:
 
@@ -203,7 +100,8 @@ class flatfile:
                 return False
 
             props['wof:id'] = wofid
-            f['id'] = wofid
+
+        f['id'] = props['wof:id']
 
         # what time is it?
 
@@ -216,6 +114,7 @@ class flatfile:
         # stubs
 
         for k in ('supersedes', 'superseded_by', 'hierarchy', 'belongsto', 'breaches'):
+
             k = "wof:%s" % k
 
             if not props.get(k, False):
@@ -226,7 +125,8 @@ class flatfile:
         for k in ('inception', 'cessation'):
             k = "edtf:%s" % k
 
-            # section 5.2.2 (EDTF)
+            # section 5.2.2 (EDTF) - this appears to have changed to 'XXXX' as of
+            # the draft sent to ISO (201602) but we're just going to wait...
 
             if not props.has_key(k):
                 props[k] = u"uuuu"	
@@ -301,21 +201,7 @@ class flatfile:
 
             return path
 
-        # store concordances
-
-        if self.concordances:
-
-            concordance = props.get('wof:concordances', {})
-            
-            other_src = self.concordances_key
-            other_id = concordances.get(other_src, None)
-
-            if other_id:
-                idx = self.concordances_idx()
-                idx.import_concordance(wofid, other_id, other_src)
-                logging.info("concordifying %s with %s:%s" % (wofid, other_src, other_id))
-                
-        #
+        # PLEASE UPDATE ME TO DO CONCORDANCES AGAIN... MAYBE?
 
         return self.write_feature(f, **kwargs)
 
