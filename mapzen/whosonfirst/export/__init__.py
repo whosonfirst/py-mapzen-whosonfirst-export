@@ -245,6 +245,11 @@ class flatfile:
             logging.error("failed to write %s, because %s" % (path, e))
             return None
 
+        perms = kwargs.get('perms', 0644)
+
+        if perms != None:
+            os.chmod(path, perms)
+
         return path
 
     def feature_path(self, f, **kwargs):
