@@ -24,7 +24,7 @@ class flatfile:
 
     def __init__(self, root, **kwargs):
 
-        path = os.path.abspath(root)        
+        path = os.path.abspath(root)
         self.root = path
 
         self.debug = kwargs.get('debug', False)
@@ -40,7 +40,7 @@ class flatfile:
         path = os.path.abspath(file)
 
         fh = open(path, 'r')
-        
+
         if kwargs.get('line_delimited', False):
 
             for ln in fh.readlines():
@@ -74,13 +74,16 @@ class flatfile:
     def export_feature(self, f, **kwargs):
 
         self.massage_feature(f)
-        
+
         props = f['properties']
         props['wof:geomhash'] = u.hash_geom(f)
 
         # who am I ?
         # have I been here before ?
         # why is the sky blue ?
+
+        # also, what time is it?
+        now = int(time.time())
 
         wofid = None
 
@@ -100,12 +103,11 @@ class flatfile:
                 return False
 
             props['wof:id'] = wofid
+            props['wof:created'] = now
+
 
         f['id'] = props['wof:id']
 
-        # what time is it?
-
-        now = int(time.time())
         props['wof:lastmodified'] = now
 
         # TO DO: FIGURE OUT HOW TO DERIVE DEFAULTS FROM
@@ -129,7 +131,7 @@ class flatfile:
             # the draft sent to ISO (201602) but we're just going to wait...
 
             if not props.has_key(k):
-                props[k] = u"uuuu"	
+                props[k] = u"uuuu"
 
             # my bad - just adding it here in advance of a proper
             # backfill (20160107/thisisaaronland)
@@ -182,7 +184,7 @@ class flatfile:
         bbox = list(shp.bounds)
         coords = shp.centroid
         area = shp.area
-        
+
         props['geom:latitude'] = coords.y
         props['geom:longitude'] = coords.x
         props['geom:area'] = area
@@ -266,7 +268,7 @@ class flatfile:
             wofid = props.get('wof:id', None)
 
         elif f['type'] == 'FeatureCollection':
-            
+
             for _f in f['features']:
                 props = _f['properties']
                 wofid = props.get('wof:id', None)
