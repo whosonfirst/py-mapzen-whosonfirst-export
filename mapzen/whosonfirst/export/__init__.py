@@ -167,7 +167,12 @@ class flatfile:
 
         # ensure wof:country
 
-        props['wof:country'] = props.get('iso:country', '')
+        if not props.get('wof:country', False):
+            props['wof:country'] = props.get('iso:country', '')
+        elif props.get('wof:country') == '':
+            props['wof:country'] = props.get('iso:country', '')
+        else:
+            pass
 
         # ensure minimum viable geom: properties
         # maybe move this in to mapzen.whosonfirst.utils
