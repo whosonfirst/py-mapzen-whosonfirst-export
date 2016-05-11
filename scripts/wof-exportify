@@ -43,7 +43,7 @@ if __name__ == '__main__':
             feature = mapzen.whosonfirst.utils.load(source, id, alt=options.alt)
         # ... or a display geometry? [id]-display-[display].geojson
         elif options.display:
-            feature = mapzen.whosonfirst.utils.load(source, id, alt=options.display)
+            feature = mapzen.whosonfirst.utils.load(source, id, display=options.display)
         # ... or just the normal WOF record? [id].geojson
         else:
             feature = mapzen.whosonfirst.utils.load(source, id)
