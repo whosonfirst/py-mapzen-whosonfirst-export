@@ -18,13 +18,16 @@ if __name__ == '__main__':
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='')
     opt_parser.add_option('-i', '--id', dest='id', action='store', default=None, help='')
 
+    opt_parser.add_option('-a', '--alt', dest='alt', action='store', default=None, help='')
+    opt_parser.add_option('-d', '--display', dest='display', action='store', default=None, help='')
+
     opt_parser.add_option('--stdin', dest='stdin', action='store_true', default=False, help='')
 
     opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
 
     options, args = opt_parser.parse_args()
 
-    if options.verbose:	
+    if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
@@ -34,7 +37,7 @@ if __name__ == '__main__':
 
     if options.id:
         id = int(options.id)
-        feature = mapzen.whosonfirst.utils.load(source, id)
+        feature = mapzen.whosonfirst.utils.load(source, id, alt=options.alt, display=options.display)
 
     elif options.stdin:
         feature = geojson.load(sys.stdin)
@@ -49,15 +52,15 @@ if __name__ == '__main__':
     if not rpt.ok():
         logging.error("validation failed for feature")
 
-        if options.verbose:	
+        if options.verbose:
 
             fh = StringIO.StringIO()
             rpt.print_report(fh)
             fh.seek(0)
-            
+
             logging.debug(fh.readlines())
 
         sys.exit()
 
-    exporter.export_feature(feature)
+    exporter.export_feature(feature, alt=options.alt, display=options.display)
     sys.exit()
