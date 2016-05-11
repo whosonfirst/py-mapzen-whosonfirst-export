@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='')
     opt_parser.add_option('-i', '--id', dest='id', action='store', default=None, help='')
-
+    opt_parser.add_option('-a', '--alt', dest='alt', action='store', default=None, help='')
     opt_parser.add_option('--stdin', dest='stdin', action='store_true', default=False, help='')
 
     opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
@@ -34,7 +34,10 @@ if __name__ == '__main__':
 
     if options.id:
         id = int(options.id)
-        feature = mapzen.whosonfirst.utils.load(source, id)
+        if options.alt:
+            feature = mapzen.whosonfirst.utils.load(source, id, alt=options.alt)
+        else:
+            feature = mapzen.whosonfirst.utils.load(source, id)
 
     elif options.stdin:
         feature = geojson.load(sys.stdin)
