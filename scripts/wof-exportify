@@ -37,16 +37,7 @@ if __name__ == '__main__':
 
     if options.id:
         id = int(options.id)
-
-        # Use an alt geometry? [id]-alt-[alt].geojson
-        if options.alt:
-            feature = mapzen.whosonfirst.utils.load(source, id, alt=options.alt)
-        # ... or a display geometry? [id]-display-[display].geojson
-        elif options.display:
-            feature = mapzen.whosonfirst.utils.load(source, id, display=options.display)
-        # ... or just the normal WOF record? [id].geojson
-        else:
-            feature = mapzen.whosonfirst.utils.load(source, id)
+        feature = mapzen.whosonfirst.utils.load(source, id, alt=options.alt, display=options.display)
 
     elif options.stdin:
         feature = geojson.load(sys.stdin)
@@ -71,13 +62,5 @@ if __name__ == '__main__':
 
         sys.exit()
 
-    # alt geometry?
-    if options.alt:
-        exporter.export_feature(feature, alt=options.alt)
-    # ... display geometry?
-    elif options.display:
-        exporter.export_feature(feature, display=options.display)
-    # ... or just the normal WOF record?
-    else:
-        exporter.export_feature(feature)
+    exporter.export_feature(feature, alt=options.alt, display=options.display)
     sys.exit()
