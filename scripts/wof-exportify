@@ -71,5 +71,13 @@ if __name__ == '__main__':
 
         sys.exit()
 
-    exporter.export_feature(feature)
+    # alt geometry?
+    if options.alt:
+        exporter.export_feature(feature, alt=options.alt)
+    # ... display geometry?
+    elif options.display:
+        exporter.export_feature(feature, display=options.display)
+    # ... or just the normal WOF record?
+    else:
+        exporter.export_feature(feature)
     sys.exit()
