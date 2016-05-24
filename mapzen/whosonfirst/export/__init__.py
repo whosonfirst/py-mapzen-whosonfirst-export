@@ -1,6 +1,7 @@
 # https://pythonhosted.org/setuptools/setuptools.html#namespace-packages
 __import__('pkg_resources').declare_namespace(__name__)
 
+import types
 import time
 import sys
 import re
@@ -175,6 +176,40 @@ class flatfile:
             props['wof:country'] = props.get('iso:country', '')
         else:
             pass
+
+        if not props.get('iso:country', False):
+            props['iso:country'] = prop.get('wof:country', '')
+
+        # names - ensure they are lists
+
+        for k, v in props.items():
+
+            if not k.startswith("name:"):
+                continue
+
+            if type(v) == types.ListType:
+                continue
+
+            if type(v) == types.TupleType:
+                props[k] = list(v)
+                continue
+
+            # Hey look - see the way we're splitting on ";"?
+            # It's pretty arbitrary as far as decisions go.
+            # We will keep doing that until we don't...
+            # (20160524/thisisaaronland)
+
+            if type(v) == types.UnicodeType:
+
+                props[k] = v.split(";")
+                continue
+
+            if type(v) == types.StringType:
+                v = unicode(v)
+                props[k] = v.split(";")
+                continue
+
+            logging.warning("WHAT AM I SUPPOSED TO DO WITH %s (%s) which is a %s" % (k, v, type(v)))
 
         # ensure minimum viable geom: properties
         # maybe move this in to mapzen.whosonfirst.utils

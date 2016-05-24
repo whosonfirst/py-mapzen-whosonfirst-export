@@ -11,5 +11,4 @@ own.
 
 ## See also
 
-* https://github.com/whosonfirst/py-mapzen-whosonfirst-geojson
 * https://github.com/whosonfirst/whosonfirst-data/
