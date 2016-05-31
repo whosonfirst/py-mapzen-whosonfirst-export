@@ -17,11 +17,15 @@ if __name__ == '__main__':
 
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='')
     opt_parser.add_option('-i', '--id', dest='id', action='store', default=None, help='')
+    opt_parser.add_option('-p', '--path', dest='path', action='store', default=None, help='')
+
+    opt_parser.add_option('-c', '--collection', dest='feature_collection', action='store_true', default=False, help='')
 
     opt_parser.add_option('-a', '--alt', dest='alt', action='store', default=None, help='')
     opt_parser.add_option('-d', '--display', dest='display', action='store', default=None, help='')
 
     opt_parser.add_option('--stdin', dest='stdin', action='store_true', default=False, help='')
+    opt_parser.add_option('--debug', dest='debug', action='store_true', default=False, help='')
 
     opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
 
@@ -33,11 +37,15 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.INFO)
 
     source = os.path.abspath(options.source)
-    exporter = mapzen.whosonfirst.export.flatfile(source)
+    exporter = mapzen.whosonfirst.export.flatfile(source, debug=options.debug)
 
     if options.id:
         id = int(options.id)
         feature = mapzen.whosonfirst.utils.load(source, id, alt=options.alt, display=options.display)
+    elif options.path:
+
+        fh = open(options.path, 'r')
+        feature = geojson.load(fh)
 
     elif options.stdin:
         feature = geojson.load(sys.stdin)
@@ -46,21 +54,39 @@ if __name__ == '__main__':
         logging.error("Missing feature or feature ID")
         sys.exit()
 
-    vld = mapzen.whosonfirst.validator.validator()
-    rpt = vld.validate_feature(feature)
+    #
 
-    if not rpt.ok():
-        logging.error("validation failed for feature")
+    def features():
 
-        if options.verbose:
+        if options.feature_collection:
+            
+            for f in feature['features']:
+                yield f
 
-            fh = StringIO.StringIO()
-            rpt.print_report(fh)
-            fh.seek(0)
+        else:
 
-            logging.debug(fh.readlines())
+            yield f
 
-        sys.exit()
+    #
 
-    exporter.export_feature(feature, alt=options.alt, display=options.display)
+    for f in features():
+
+        vld = mapzen.whosonfirst.validator.validator()
+        rpt = vld.validate_feature(f)
+
+        if not rpt.ok():
+            logging.error("validation failed for feature")
+
+            if options.verbose:
+                
+                fh = StringIO.StringIO()
+                rpt.print_report(fh)
+                fh.seek(0)
+                
+                logging.debug(fh.readlines())
+
+            sys.exit()
+
+        exporter.export_feature(f, alt=options.alt, display=options.display)
+
     sys.exit()
