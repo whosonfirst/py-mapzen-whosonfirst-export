@@ -178,7 +178,7 @@ class flatfile:
             pass
 
         if not props.get('iso:country', False):
-            props['iso:country'] = prop.get('wof:country', '')
+            props['iso:country'] = props.get('wof:country', '')
 
         # names - ensure they are lists
 
