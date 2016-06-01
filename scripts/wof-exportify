@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
         else:
 
-            yield f
+            yield feature
 
     #
 
