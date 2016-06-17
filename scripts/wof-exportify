@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     if options.id:
         id = int(options.id)
-        feature = mapzen.whosonfirst.utils.load(source, id, alt=options.alt, display=options.display)
+        feature = mapzen.whosonfirst.utils.load([source], id, alt=options.alt, display=options.display)
     elif options.path:
 
         fh = open(options.path, 'r')
