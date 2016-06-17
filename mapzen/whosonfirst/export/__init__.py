@@ -91,8 +91,6 @@ class flatfile:
         if props.has_key('wof:id'):
             wofid = props['wof:id']
 
-        # PLEASE UPDATE ME TO DO CONCORDANCES AGAIN, YEAH?
-
         if wofid == None:
 
             logging.debug("This record has no wofid so now asking what Brooklyn would do...")
@@ -122,6 +120,22 @@ class flatfile:
 
             if not props.get(k, False):
                 props[k] = []
+
+        # ensure 'mz:' properties
+        # https://github.com/whosonfirst/whosonfirst-data/issues/320
+
+        if not props.get('mz:hierarchy_label', None):
+
+            props['mz:hierarchy_label'] = 1
+
+        # ensure 'wof:repo'
+        # https://github.com/whosonfirst/whosonfirst-data/issues/338
+
+        if not props.get('wof:repo', None):
+
+            data_root = self.root
+            repo_root = os.path.dirname(data_root)
+            props['wof:repo'] = os.path.basename(repo_root)
 
         # ensure edtf stuff
 
