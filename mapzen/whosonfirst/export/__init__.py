@@ -257,8 +257,6 @@ class flatfile:
 
             return path
 
-        # PLEASE UPDATE ME TO DO CONCORDANCES AGAIN... MAYBE?
-
         return self.write_feature(f, **kwargs)
 
     def export_alt_feature(self, f, **kwargs):
