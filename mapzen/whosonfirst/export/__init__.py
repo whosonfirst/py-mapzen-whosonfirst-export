@@ -124,14 +124,14 @@ class flatfile:
         # ensure 'mz:' properties
         # https://github.com/whosonfirst/whosonfirst-data/issues/320
 
-        if not props.get('mz:hierarchy_label', None):
+        if props.get('mz:hierarchy_label', None) == None:
 
             props['mz:hierarchy_label'] = 1
 
         # ensure 'wof:repo'
         # https://github.com/whosonfirst/whosonfirst-data/issues/338
 
-        if not props.get('wof:repo', None):
+        if props.get('wof:repo', None) == None:
 
             data_root = self.root
             repo_root = os.path.dirname(data_root)
