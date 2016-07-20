@@ -239,6 +239,34 @@ class flatfile:
         props['geom:area'] = area
         props['geom:bbox'] = ",".join(map(str, bbox))
 
+        try:
+
+            import utm
+            from osgeo import ogr
+            from osgeo import osr
+
+            utm_props = utm.from_latlon(props['geom:latitude'], props['geom:longitude'])
+            zone = utm_props[2]
+
+            proj = "+proj=utm +zone=%s +ellps= WGS84 +units=m +no_defs" % zone
+
+            source = osr.SpatialReference()
+            source.ImportFromEPSG(4326)
+
+            target = osr.SpatialReference()
+            target.ImportFromProj4(proj)
+
+            transform = osr.CoordinateTransformation(source, target)
+
+            poly = ogr.CreateGeometryFromJson(geojson.dumps(f['geometry']))
+            poly.Transform(transform)
+
+            sq_m = format(poly.GetArea(), 'f')
+            props['geom:area_square_m'] = float(sq_m)
+
+        except Exception, e:
+            logging.warning("failed to calculate area in square meters, because %s" % e)
+
         f['bbox'] = bbox
         f['properties'] = props
 
