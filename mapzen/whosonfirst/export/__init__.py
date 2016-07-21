@@ -162,7 +162,7 @@ class flatfile:
             v = props['wof:id']
 
             if not h.get(k, False) or h[k] == -1:
-                h[k] = v
+                h[k] = int(v)
 
         # ensure belongs to
 
@@ -229,7 +229,13 @@ class flatfile:
         # maybe move this in to mapzen.whosonfirst.utils
         # as we do with bbox ?
 
-        shp = shapely.geometry.asShape(f['geometry'])
+        try:
+            shp = shapely.geometry.asShape(f['geometry'])
+        except Exception, e:
+            path = self.feature_path(f)
+            logging.error("feature (%s) has a bunk geoemtry!" % path)
+            raise Exception, e
+
         bbox = list(shp.bounds)
         coords = shp.centroid
         area = shp.area
