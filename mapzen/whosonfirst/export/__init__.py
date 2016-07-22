@@ -247,20 +247,30 @@ class flatfile:
 
         try:
 
-            import utm
+            # From Kelso (21060722/thisisaaronland)
+            # 
+            # Global" equal area projection: http://spatialreference.org/ref/epsg/3410/
+            # if you wanted to get super geeky for the poles, you’d do this one above 86°: http://spatialreference.org/ref/epsg/3408/
+            # and this one below -86°: http://spatialreference.org/ref/epsg/3409/
+            # (they look like this: http://nsidc.org/data/ease/)
+            # EASE | Overview | National Snow and Ice Data Center
+            # What is EASE-Grid? The Equal-Area Scalable Earth Grid (EASE-Grid) is intended to be a versatile format for global-scale
+            # gridded data, specifically remotely sensed data, although it has gained popularity as a common gridding scheme for other
+            # data as well. Data from various sources can be expressed as digital arrays of varying grid resolutions, which are defined
+            # in relation to one of three possible projections: Northern and Southern Hemisphere (Lambert's equal-area, azimuthal) and
+            # full global (cylindrical, Show more... 
+            # It’s known as "Cylindrical Equal-Area”, but I guess it’s called the other thing in EPSG because that agency was the first
+            # one to add it under their own product name. </sigh>
+            # https://nsidc.org/data/atlas/epsg_3410.html
+
             from osgeo import ogr
             from osgeo import osr
-
-            utm_props = utm.from_latlon(props['geom:latitude'], props['geom:longitude'])
-            zone = utm_props[2]
-
-            proj = "+proj=utm +zone=%s +ellps= WGS84 +units=m +no_defs" % zone
 
             source = osr.SpatialReference()
             source.ImportFromEPSG(4326)
 
             target = osr.SpatialReference()
-            target.ImportFromProj4(proj)
+            target.ImportFromEPSG(3410)
 
             transform = osr.CoordinateTransformation(source, target)
 
