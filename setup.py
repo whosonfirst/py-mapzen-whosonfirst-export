@@ -41,6 +41,7 @@ setup(
     packages=packages,
     scripts=[
         'scripts/wof-exportify',
+        'scripts/wof-exportify-repo',
         ],
     download_url='https://github.com/whosonfirst/py-mapzen-whosonfirst-export/releases/tag/' + version,
     license='BSD')

@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+# -*-python-*-
+
+import os
+import sys
+import logging
+
+import mapzen.whosonfirst.export
+import mapzen.whosonfirst.utils
+
+if __name__ == '__main__':
+
+    import optparse
+    opt_parser = optparse.OptionParser()
+    
+    opt_parser.add_option('-R', '--repo', dest='repo', action='store', default=None, help='')
+    opt_parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Be chatty (default is false)')
+    
+    options, args = opt_parser.parse_args()
+
+    if options.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    repo = os.path.abspath(options.repo)
+    data = os.path.join(repo, "data")
+
+    for path in (repo, data):
+
+        if not os.path.exists(path):
+            logging.error("%s does not exist" % path)
+            sys.exit(1)
+                          
+    exporter = mapzen.whosonfirst.export.flatfile(data)
+    crawl = mapzen.whosonfirst.utils.crawl(data, inflate=True)
+
+    for feature in crawl:
+        exporter.export_feature(feature)
+
+    sys.exit(0)
