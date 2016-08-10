@@ -284,6 +284,22 @@ class flatfile:
             logging.warning("failed to calculate area in square meters, because %s" % e)
 
         f['bbox'] = bbox
+
+        # ensure that all properties are prefixed
+
+        for k, v in props.items():
+
+            parts = k.split(":", 1)
+
+            if len(parts) == 2:
+                continue
+            
+            old_k = k
+            new_k = "misc:%s" % parts[0]
+        
+            props[new_k] = v
+            del(props[old_k])
+
         f['properties'] = props
 
         if self.debug:
