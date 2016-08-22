@@ -104,7 +104,6 @@ class flatfile:
             props['wof:id'] = wofid
             props['wof:created'] = now
 
-
         f['id'] = props['wof:id']
 
         props['wof:lastmodified'] = now
@@ -319,6 +318,10 @@ class flatfile:
 
         return self.write_feature(f, **kwargs)
 
+    # see this – there is currently no 'export_display_feature' method
+    # there probably should be but today there isn't...
+    # (20160822/thisisaaronland)
+
     def export_alt_feature(self, f, **kwargs):
 
         _props = f['properties']
@@ -332,6 +335,18 @@ class flatfile:
         bbox = list(shp.bounds)
 
         f['bbox'] = bbox
+
+        # https://github.com/whosonfirst/py-mapzen-whosonfirst-uri/blob/master/mapzen/whosonfirst/uri/__init__.py
+        #
+        # remember that is where filenames are sorted out and as of this writing
+        # it's not very sophisticated. like if you're thinking "I wonder if..."
+        # the answer is probably still no-slash-patches-welcome
+        # (21060822/thisisaaronland)
+
+        if not kwargs.get('alt', None):
+            alt = _props.get('src:geom', 'unknown')
+            kwargs['alt'] = alt
+
         return self.write_feature(f, **kwargs)
 
     def write_feature(self, f, **kwargs):
