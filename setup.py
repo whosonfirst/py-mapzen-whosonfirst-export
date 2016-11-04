@@ -19,7 +19,7 @@ version = open("VERSION").read()
 
 setup(
     name='mapzen.whosonfirst.export',
-    namespace_packages=['mapzen', 'mapzen.whosonfirst', 'mapzen.whosonfirst.export'],
+    namespace_packages=['mapzen', 'mapzen.whosonfirst'],
     version=version,
     description='Simple Python wrapper for managing Who\'s On First export-related functions',
     author='Mapzen',
