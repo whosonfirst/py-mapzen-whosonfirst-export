@@ -5,7 +5,7 @@ Export tools for the Who's On First
 ## Install
 
 ```
-sudo pip install -r requirements.txt --process-dependency-links
+sudo pip install -r requirements.txt --process-dependency-links .
 ```
 
 ### Caveats
