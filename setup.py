@@ -24,20 +24,6 @@ setup(
     description='Simple Python wrapper for managing Who\'s On First export-related functions',
     author='Mapzen',
     url='https://github.com/whosonfirst/py-mapzen-whosonfirst-export',
-    install_requires=[
-        'requests',
-        'geojson',
-        'shapely',
-        'atomicwrites',
-        'mapzen.whosonfirst.utils>=0.18',
-        'mapzen.whosonfirst.geojson>=0.06',
-        'mapzen.whosonfirst.validator>=0.10',
-        ],
-    dependency_links=[
-        'https://github.com/whosonfirst/py-mapzen-whosonfirst-utils/tarball/master#egg=mapzen.whosonfirst.utils-0.18',
-        'https://github.com/whosonfirst/py-mapzen-whosonfirst-geojson/tarball/master#egg=mapzen.whosonfirst.geojson-0.06',
-        'https://github.com/whosonfirst/py-mapzen-whosonfirst-validator/tarball/master#egg=mapzen.whosonfirst.validator-0.10',
-        ],
     packages=packages,
     scripts=[
         'scripts/wof-exportify',
