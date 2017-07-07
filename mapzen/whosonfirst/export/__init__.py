@@ -124,6 +124,21 @@ class flatfile:
 
             props['mz:hierarchy_label'] = 1
 
+        is_current = props.get("mz:is_current", None)
+
+        if not is_current in (-1, 0, 1):
+
+            if str(is_current) == "-1":
+                is_current = -1
+            elif str(is_current) == "0":
+                is_current = 0
+            elif str(is_current) == "1":
+                is_current = 1
+            else:
+                is_current = -1
+                
+            props['mz:is_current'] = is_current
+
         # ensure 'wof:repo'
         # https://github.com/whosonfirst/whosonfirst-data/issues/338
 
