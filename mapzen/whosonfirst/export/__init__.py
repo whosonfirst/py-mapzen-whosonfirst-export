@@ -168,12 +168,21 @@ class flatfile:
         # ensure hierarchy contains self
 
         for h in props['wof:hierarchy']:
-
             k = "%s_id" % props['wof:placetype']
             v = props['wof:id']
 
             if not h.get(k, False) or h[k] == -1:
                 h[k] = int(v)
+
+        # ensure hierarchy contains placetype_alt(s)
+
+        if props.has_key('wof:placetype_alt'):
+            for a in props['wof:placetype_alt']:
+                k = "%s_id" % props['wof:placetype_alt']
+                v = props['wof:id']
+                
+                if not h.get(k, False) or h[k] == -1:
+                    h[k] = int(v)
 
         # ensure belongs to
 
