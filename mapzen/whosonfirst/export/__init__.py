@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import types
 import time
 import sys
@@ -178,7 +179,7 @@ class flatfile:
 
         if props.has_key('wof:placetype_alt'):
             for a in props['wof:placetype_alt']:
-                k = "%s_id" % props['wof:placetype_alt']
+                k = "%s_id" % a
                 v = props['wof:id']
                 
                 if not h.get(k, False) or h[k] == -1:
