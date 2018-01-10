@@ -17,6 +17,7 @@ import atomicwrites
 
 import mapzen.whosonfirst.utils as u
 import mapzen.whosonfirst.geojson as g
+import mapzen.whosonfirst.sources
 
 class flatfile:
 
@@ -146,8 +147,9 @@ class flatfile:
         if props.get('wof:population_rank', None) == None:
 
             population = 0
+            population_src = ""            
             rank = 0
-
+            
             # if venue rank = 0
             
             if props.["wof:placetype"] != "venue":
@@ -158,7 +160,7 @@ class flatfile:
                     "wk:population",
                     "statoids:population",
                     "gn:population",
-                    "qs:population",
+                    "qs:pop",
                     "zs:population",
                     "meso:population",
                     "ne:population",
@@ -170,7 +172,13 @@ class flatfile:
                     pop = int(pop)
                     
                     if pop != 0:
+                        
                         population = pop
+
+                        prefix, ignore = p.split(":")
+                        src = mapzen.whosonfirst.sources.get_by_prefix(prefix)
+                        
+                        population_src = src.details["name"]
                         break
                     
                 if population > 1000000000:
@@ -212,7 +220,10 @@ class flatfile:
                 else:
                     pass
                                     
-            props["wof:population_rank"] = 0
+            props["wof:population_rank"] = population
+
+            if population_src:
+                props["src:population"] = population_src
             
         # ensure 'wof:repo'
         # https://github.com/whosonfirst/whosonfirst-data/issues/338
