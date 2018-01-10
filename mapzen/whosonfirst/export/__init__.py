@@ -148,7 +148,7 @@ class flatfile:
             population = 0
             rank = 0
 
-            # if venue rank == 0
+            # if venue rank = 0
             
             if props.["wof:placetype"] != "venue":
                 
