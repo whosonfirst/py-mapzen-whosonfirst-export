@@ -139,6 +139,81 @@ class flatfile:
                 
             props['mz:is_current'] = is_current
 
+        # ensure 'wof:population_rank'
+        # https://github.com/whosonfirst/whosonfirst-properties/blob/master/properties/wof/README.md#population_rank
+        # https://github.com/whosonfirst/py-mapzen-whosonfirst-export/issues/15
+
+        if props.get('wof:population_rank', None) == None:
+
+            population = 0
+            rank = 0
+
+            # if venue rank == 0
+            
+            if props.["wof:placetype"] != "venue":
+                
+                possible = [
+                    "wof:population",
+                    "wd:population",
+                    "wk:population",
+                    "statoids:population",
+                    "gn:population",
+                    "qs:population",
+                    "zs:population",
+                    "meso:population",
+                    "ne:population",
+                ]
+                
+                for p in possible:
+                    
+                    pop = props.get(p, 0)
+                    pop = int(pop)
+                    
+                    if pop != 0:
+                        population = pop
+                        break
+                    
+                if population > 1000000000:
+                    rank = 18
+                elif population > 100000000:
+                    rank = 17
+                elif population >= 50000000:
+                    rank = 16
+                elif population >= 20000000:
+                    rank = 15
+                elif population >= 10000000:
+                    rank = 14
+                elif population >= 5000000:
+                    rank = 13
+                elif population >= 1000000:
+                    rank = 12
+                elif population >= 500000:
+                    rank = 11
+                elif population >= 200000:
+                    rank = 10
+                elif population >= 100000:
+                    rank = 9
+                elif population >= 50000:
+                    rank = 8
+                elif population >= 20000:
+                    rank = 7
+                elif population >= 10000:
+                    rank = 6
+                elif population >= 5000:
+                    rank = 5
+                elif population >= 2000:
+                    rank = 4
+                elif population >= 1000:
+                    rank = 3
+                elif population >= 200:
+                    rank = 2
+                elif population > 0:
+                    rank = 1
+                else:
+                    pass
+                                    
+            props["wof:population_rank"] = 0
+            
         # ensure 'wof:repo'
         # https://github.com/whosonfirst/whosonfirst-data/issues/338
 
