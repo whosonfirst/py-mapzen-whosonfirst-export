@@ -2,6 +2,6 @@ requests
 geojson
 shapely
 atomicwrites
-git+git://github.com/whosonfirst/py-mapzen-whosonfirst-utils
-git+git://github.com/whosonfirst/py-mapzen-whosonfirst-geojson
-git+git://github.com/whosonfirst/py-mapzen-whosonfirst-validator
+git+https://github.com/whosonfirst/py-mapzen-whosonfirst-utils
+git+https://github.com/whosonfirst/py-mapzen-whosonfirst-geojson
+git+https://github.com/whosonfirst/py-mapzen-whosonfirst-validator
