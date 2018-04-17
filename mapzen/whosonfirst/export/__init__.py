@@ -188,8 +188,8 @@ class flatfile:
 
         props['wof:belongsto'] = belongsto
 
-        if props['wof:parent_id'] != -1 and not props['wof:parent_id'] in props['wof:belongsto']:
-            props['wof:belongsto'] = props['wof:parent_id']
+        if props['wof:parent_id'] > 0 and not props['wof:parent_id'] in props['wof:belongsto']:
+            props['wof:belongsto'].append(props['wof:parent_id'])
 
         # ensure tags
 
