@@ -12,6 +12,9 @@ import shapely.geometry
 import random
 import atomicwrites
 
+import edtf
+import arrow
+
 # See this - it's because of some hair-brained nonsense importing
 # things in OS X... I have no idea, honestly (20151109/thisisaaronland)
 
@@ -148,7 +151,8 @@ class flatfile:
             repo_root = os.path.dirname(data_root)
             props['wof:repo'] = os.path.basename(repo_root)
 
-        # ensure edtf stuff
+        # ensure edtf stuff - it might be time for py-whosonfirst-dates/edtf package
+        # but not today... (20180503/thisisaaronland)
 
         for k in ('inception', 'cessation'):
             k = "edtf:%s" % k
@@ -164,6 +168,63 @@ class flatfile:
 
             if props.get(k) == "u":
                 props[k] = u"uuuu"
+
+        # now we try to append upper/lower ranges for inception and cessation
+        # dates - specifically plain vanilla YMD values that can be indexed by
+        # plain old databases (20180503/thisisaaronland)
+
+        # note the use of arrow (.py) since datetime.strptime can't deal with
+        # parsing YYYY-MM-DD dates before 1900 because... I mean really, who
+        # cares why it's just kind of... bad (20180503/thisisaaronland)
+
+        inception = props.get("edtf:inception", "")
+        cessation = props.get("edtf:cessation", "")        
+
+        print "inception %s" % inception
+        print "cessation %s" % cessation
+
+        fmt = "YYYY-MM-DD"
+
+        # skip "uuuu" because it resolves to 0001-01-01 9999-12-31 (in edtf.py land)
+        
+        if not inception in ("", "uuuu"):
+            try:
+            
+                e = edtf.parse_edtf(unicode(inception))
+
+                lower = arrow.get(e.lower_strict())
+                upper = arrow.get(e.upper_strict())
+                
+                props["date:inception_lower"] = lower.format(fmt)
+                props["date:inception_upper"] = upper.format(fmt)
+
+            except Exception, e:
+                logging.warning("Failed to parse inception '%s' because %s" % (inception, e))
+
+            if not cessation in ("", "uuuu", "open"):                
+
+                # we'll never get here because of the test above but the point
+                # is a) edtf.py freaks out when an edtf string is just "open" (not
+                # sure if this is a me-thing or a them-thing and b) edtf.py interprets
+                # "open" as "today" which is not what we want to store in the database
+                # (20180418/thisisaaronland)
+                
+                if cessation == "open" and not inception in ("", "uuuu"):
+                    cessation = "%s/open" % inception
+                
+                try:                
+                    e = edtf.parse_edtf(unicode(cessation))
+
+                    lower = arrow.get(e.lower_strict())
+                    upper = arrow.get(e.upper_strict())
+                    
+                    props["date:cessation_lower"] = lower.format(fmt)
+                    props["date:cessation_upper"] = upper.format(fmt)
+
+                except Exception, e:
+                    logging.warning("Failed to parse cessation '%s' because %s" % (cessation, e))
+                    
+        # end of edtf stuff
 
         # ensure hierarchy contains self
 
