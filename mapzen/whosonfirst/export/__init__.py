@@ -180,9 +180,6 @@ class flatfile:
         inception = props.get("edtf:inception", "")
         cessation = props.get("edtf:cessation", "")        
 
-        print "inception %s" % inception
-        print "cessation %s" % cessation
-
         fmt = "YYYY-MM-DD"
 
         # skip "uuuu" because it resolves to 0001-01-01 9999-12-31 (in edtf.py land)
