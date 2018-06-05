@@ -1,4 +1,4 @@
-# py-mapzen-gazetteer-export
+# py-mapzen-whosonfirst-export
 
 Export tools for the Who's On First
 
