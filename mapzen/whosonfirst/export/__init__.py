@@ -145,10 +145,13 @@ class flatfile:
         # ensure 'wof:repo'
         # https://github.com/whosonfirst/whosonfirst-data/issues/338
 
-        if props.get('wof:repo', None) == None:
+        data_root = self.root
+        repo_root = os.path.dirname(data_root)
 
-            data_root = self.root
-            repo_root = os.path.dirname(data_root)
+        if props.get('wof:repo', None) == None:
+            props['wof:repo'] = os.path.basename(repo_root)
+
+        if not props['wof:repo'] == os.path.basename(repo_root):
             props['wof:repo'] = os.path.basename(repo_root)
 
         # ensure edtf stuff - it might be time for py-whosonfirst-dates/edtf package
