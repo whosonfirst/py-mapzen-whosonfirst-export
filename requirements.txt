@@ -7,3 +7,7 @@ arrow
 git+https://github.com/whosonfirst/py-mapzen-whosonfirst-utils
 git+https://github.com/whosonfirst/py-mapzen-whosonfirst-geojson
 git+https://github.com/whosonfirst/py-mapzen-whosonfirst-validator
+git+https://github.com/whosonfirst/py-mapzen-whosonfirst-placetypes
+git+https://github.com/whosonfirst/py-mapzen-whosonfirst-meta
+git+https://github.com/whosonfirst/py-mapzen-whosonfirst-uri
+git+https://github.com/whosonfirst/py-mapzen-whosonfirst-sources
