@@ -317,44 +317,52 @@ class flatfile:
         props['geom:area'] = area
         props['geom:bbox'] = ",".join(map(str, bbox))
 
-        try:
+        to_skip = [
+            "Point",
+            "MultiPoint"
+        ]
 
-            # From Kelso (21060722/thisisaaronland)
-            # 
-            # Global" equal area projection: http://spatialreference.org/ref/epsg/3410/
-            # if you wanted to get super geeky for the poles, you’d do this one above 86°: http://spatialreference.org/ref/epsg/3408/
-            # and this one below -86°: http://spatialreference.org/ref/epsg/3409/
-            # (they look like this: http://nsidc.org/data/ease/)
-            # EASE | Overview | National Snow and Ice Data Center
-            # What is EASE-Grid? The Equal-Area Scalable Earth Grid (EASE-Grid) is intended to be a versatile format for global-scale
-            # gridded data, specifically remotely sensed data, although it has gained popularity as a common gridding scheme for other
-            # data as well. Data from various sources can be expressed as digital arrays of varying grid resolutions, which are defined
-            # in relation to one of three possible projections: Northern and Southern Hemisphere (Lambert's equal-area, azimuthal) and
-            # full global (cylindrical, Show more... 
-            # It’s known as "Cylindrical Equal-Area”, but I guess it’s called the other thing in EPSG because that agency was the first
-            # one to add it under their own product name. </sigh>
-            # https://nsidc.org/data/atlas/epsg_3410.html
+        if not f['geometry']['type'] in to_skip:
+            try:
+                
+                # From Kelso (21060722/thisisaaronland)
+                # 
+                # Global" equal area projection: http://spatialreference.org/ref/epsg/3410/
+                # if you wanted to get super geeky for the poles, you’d do this one above 86°: http://spatialreference.org/ref/epsg/3408/
+                # and this one below -86°: http://spatialreference.org/ref/epsg/3409/
+                # (they look like this: http://nsidc.org/data/ease/)
+                # EASE | Overview | National Snow and Ice Data Center
+                # What is EASE-Grid? The Equal-Area Scalable Earth Grid (EASE-Grid) is intended to be a versatile format for global-scale
+                # gridded data, specifically remotely sensed data, although it has gained popularity as a common gridding scheme for other
+                # data as well. Data from various sources can be expressed as digital arrays of varying grid resolutions, which are defined
+                # in relation to one of three possible projections: Northern and Southern Hemisphere (Lambert's equal-area, azimuthal) and
+                # full global (cylindrical, Show more... 
+                # It’s known as "Cylindrical Equal-Area”, but I guess it’s called the other thing in EPSG because that agency was the first
+                # one to add it under their own product name. </sigh>
+                # https://nsidc.org/data/atlas/epsg_3410.html
+                
+                from osgeo import ogr
+                from osgeo import osr
+                
+                source = osr.SpatialReference()
+                source.ImportFromEPSG(4326)
+                
+                target = osr.SpatialReference()
+                target.ImportFromEPSG(3410)
+                
+                transform = osr.CoordinateTransformation(source, target)
+                
+                poly = ogr.CreateGeometryFromJson(geojson.dumps(f['geometry']))
+                poly.Transform(transform)
+                
+                sq_m = format(poly.GetArea(), 'f')
+                props['geom:area_square_m'] = float(sq_m)
+                
+            except Exception, e:
+                logging.warning("failed to calculate area in square meters, because %s" % e)
 
-            from osgeo import ogr
-            from osgeo import osr
-
-            source = osr.SpatialReference()
-            source.ImportFromEPSG(4326)
-
-            target = osr.SpatialReference()
-            target.ImportFromEPSG(3410)
-
-            transform = osr.CoordinateTransformation(source, target)
-
-            poly = ogr.CreateGeometryFromJson(geojson.dumps(f['geometry']))
-            poly.Transform(transform)
-
-            sq_m = format(poly.GetArea(), 'f')
-            props['geom:area_square_m'] = float(sq_m)
-
-        except Exception, e:
-            logging.warning("failed to calculate area in square meters, because %s" % e)
-
+        # end of osgeo stuff
+        
         f['bbox'] = bbox
 
         # ensure that all properties are prefixed
@@ -436,7 +444,7 @@ class flatfile:
         if not os.path.exists(root):
             os.makedirs(root)
 
-        logging.info("writing %s" % (path))
+        logging.debug("writing %s" % (path))
 
         try:
 
