@@ -31,7 +31,40 @@ class base:
         self.encoder = encoder
 
     def export_geojson(self, file, **kwargs):
-        raise Exception, "export_geojson not implemented"
+
+        path = os.path.abspath(file)
+
+        fh = open(path, 'r')
+
+        if kwargs.get('line_delimited', False):
+
+            for ln in fh.readlines():
+
+                data = geojson.loads(ln)
+
+                if not data:
+                    logging.warning("failed to parse line")
+                    logging.debug(ln)
+                    continue
+
+                self.export_feature(data)
+
+        else:
+
+            try:
+                data = geojson.load(fh)
+            except Exception, e:
+                logging.error("Failed to load JSON for %s, because" % (path, e))
+                return False
+
+            features = data.get('features', [])
+
+            if len(features) == 0:
+                logging.warning("%s has not features" % path)
+                return False
+
+            for f in features:
+                self.export_feature(f, **kwargs)
 
     def export_feature(self, f, **kwargs):
         raise Exception, "export_feature not implemented"
@@ -350,6 +383,13 @@ class base:
         f['properties'] = props
         return f
 
+class stdout(base):
+
+    def export_feature(self, f, **kwargs):
+
+        f = base.prepare_feature(self, f, **kwargs)
+        json.dump(f, os.stdout, indent=2)
+
 class flatfile(base):
 
     def __init__(self, root, **kwargs):
@@ -358,42 +398,6 @@ class flatfile(base):
 
         path = os.path.abspath(root)
         self.root = path
-
-    def export_geojson(self, file, **kwargs):
-
-        path = os.path.abspath(file)
-
-        fh = open(path, 'r')
-
-        if kwargs.get('line_delimited', False):
-
-            for ln in fh.readlines():
-
-                data = geojson.loads(ln)
-
-                if not data:
-                    logging.warning("failed to parse line")
-                    logging.debug(ln)
-                    continue
-
-                self.export_feature(data)
-
-        else:
-
-            try:
-                data = geojson.load(fh)
-            except Exception, e:
-                logging.error("Failed to load JSON for %s, because" % (path, e))
-                return False
-
-            features = data.get('features', [])
-
-            if len(features) == 0:
-                logging.warning("%s has not features" % path)
-                return False
-
-            for f in features:
-                self.export_feature(f, **kwargs)
 
     def export_feature(self, f, **kwargs):
 
