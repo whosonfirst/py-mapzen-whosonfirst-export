@@ -2,6 +2,7 @@ import types
 import time
 import sys
 import re
+import os
 import os.path
 import json
 import geojson
@@ -67,14 +68,9 @@ class base:
                 self.export_feature(f, **kwargs)
 
     def export_feature(self, f, **kwargs):
-        raise Exception, "export_feature not implemented"
-
-    def massage_feature(self, f):
-        pass
+        return self.prepare_feature(f, **kwargs)
 
     def prepare_feature(self, f, **kwargs):
-
-        self.massage_feature(f)
 
         props = f['properties']
         props['wof:geomhash'] = u.hash_geom(f)
@@ -385,9 +381,12 @@ class base:
 
 class stdout(base):
 
+    def __init__(self, root, **kwargs):
+        base.__init__(self, **kwargs)
+
     def export_feature(self, f, **kwargs):
 
-        f = base.prepare_feature(self, f, **kwargs)
+        f = base.export_feature(self, f, **kwargs)
         json.dump(f, os.stdout, indent=2)
 
 class flatfile(base):
@@ -401,7 +400,7 @@ class flatfile(base):
 
     def export_feature(self, f, **kwargs):
 
-        f = base.prepare_feature(self, f, **kwargs)
+        f = base.export_feature(self, f, **kwargs)
 
         if self.debug:
 
