@@ -21,58 +21,25 @@ import arrow
 import mapzen.whosonfirst.utils as u
 import mapzen.whosonfirst.geojson as g
 
-class flatfile:
+class base:
 
-    def __init__(self, root, **kwargs):
-
-        path = os.path.abspath(root)
-        self.root = path
+    def __init__(self, **kwargs):
 
         self.debug = kwargs.get('debug', False)
-
-        # the thing that actually generates the geojson
-        # we write to disk
 
         encoder = g.encoder()
         self.encoder = encoder
 
     def export_geojson(self, file, **kwargs):
-
-        path = os.path.abspath(file)
-
-        fh = open(path, 'r')
-
-        if kwargs.get('line_delimited', False):
-
-            for ln in fh.readlines():
-
-                data = geojson.loads(ln)
-
-                if not data:
-                    logging.warning("failed to parse line")
-                    logging.debug(ln)
-                    continue
-
-                self.export_feature(data)
-
-        else:
-
-            try:
-                data = geojson.load(fh)
-            except Exception, e:
-                logging.error("Failed to load JSON for %s, because" % (path, e))
-                return False
-
-            features = data.get('features', [])
-
-            if len(features) == 0:
-                logging.warning("%s has not features" % path)
-                return False
-
-            for f in features:
-                self.export_feature(f, **kwargs)
+        raise Exception, "export_geojson not implemented"
 
     def export_feature(self, f, **kwargs):
+        raise Exception, "export_feature not implemented"
+
+    def massage_feature(self, f):
+        pass
+
+    def prepare_feature(self, f, **kwargs):
 
         self.massage_feature(f)
 
@@ -381,6 +348,56 @@ class flatfile:
             del(props[old_k])
 
         f['properties'] = props
+        return f
+
+class flatfile(base):
+
+    def __init__(self, root, **kwargs):
+
+        base.__init__(self, **kwargs)
+
+        path = os.path.abspath(root)
+        self.root = path
+
+    def export_geojson(self, file, **kwargs):
+
+        path = os.path.abspath(file)
+
+        fh = open(path, 'r')
+
+        if kwargs.get('line_delimited', False):
+
+            for ln in fh.readlines():
+
+                data = geojson.loads(ln)
+
+                if not data:
+                    logging.warning("failed to parse line")
+                    logging.debug(ln)
+                    continue
+
+                self.export_feature(data)
+
+        else:
+
+            try:
+                data = geojson.load(fh)
+            except Exception, e:
+                logging.error("Failed to load JSON for %s, because" % (path, e))
+                return False
+
+            features = data.get('features', [])
+
+            if len(features) == 0:
+                logging.warning("%s has not features" % path)
+                return False
+
+            for f in features:
+                self.export_feature(f, **kwargs)
+
+    def export_feature(self, f, **kwargs):
+
+        f = base.prepare_feature(self, f, **kwargs)
 
         if self.debug:
 
@@ -495,8 +512,3 @@ class flatfile:
         path = os.path.join(root, fname)
 
         return path
-
-    # This is left to subclasses to define
-
-    def massage_feature(self, f):
-        pass
