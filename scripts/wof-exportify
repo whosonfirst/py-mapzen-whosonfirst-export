@@ -15,7 +15,10 @@ if __name__ == '__main__':
     import optparse
     opt_parser = optparse.OptionParser()
 
+    opt_parser.add_option('-e', '--exporter', dest='exporter', action='store', default='flatfile', help='')
+
     opt_parser.add_option('-s', '--source', dest='source', action='store', default=None, help='')
+
     opt_parser.add_option('-i', '--id', dest='id', action='store', default=None, help='')
     opt_parser.add_option('-p', '--path', dest='path', action='store', default=None, help='')
 
@@ -36,8 +39,16 @@ if __name__ == '__main__':
     else:
         logging.basicConfig(level=logging.INFO)
 
-    source = os.path.abspath(options.source)
-    exporter = mapzen.whosonfirst.export.flatfile(source, debug=options.debug)
+    exporter = None
+
+    if options.exporter == "flatfile":
+        source = os.path.abspath(options.source)
+        exporter = mapzen.whosonfirst.export.flatfile(source, debug=options.debug)
+    elif options.exporter == "stdout":
+        exporter = mapzen.whosonfirst.export.stdout(debug=options.debug)        
+    else:
+        logging.error("Invalid exporter")
+        sys.exit(1)
 
     if options.id:
         id = int(options.id)

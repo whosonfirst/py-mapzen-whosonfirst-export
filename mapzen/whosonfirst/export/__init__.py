@@ -13,6 +13,7 @@ import shapely.geometry
 import random
 import atomicwrites
 
+import StringIO
 import edtf
 import arrow
 
@@ -379,15 +380,17 @@ class base:
         f['properties'] = props
         return f
 
+    def write_feature(self, f, fh):
+        self.encoder.encode_feature(f, fh)
+
 class stdout(base):
 
     def __init__(self, **kwargs):
         base.__init__(self, **kwargs)
 
     def export_feature(self, f, **kwargs):
-
-        f = base.export_feature(self, f, **kwargs)
-        self.encoder.encode_feature(f, sys.stdout)
+        f = self.prepare_feature(f, **kwargs)
+        self.write_feature(f, sys.stdout)
 
 class flatfile(base):
 
@@ -469,7 +472,8 @@ class flatfile(base):
         try:
 
             with atomicwrites.atomic_write(path, overwrite=True) as fh:
-                self.encoder.encode_feature(f, fh)
+                base.write_feature(self, f, fh)
+                # self.encoder.encode_feature(f, fh)
 
         except Exception, e:
             logging.error("failed to write %s, because %s" % (path, e))
