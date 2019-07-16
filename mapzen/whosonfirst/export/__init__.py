@@ -381,13 +381,13 @@ class base:
 
 class stdout(base):
 
-    def __init__(self, root, **kwargs):
+    def __init__(self, **kwargs):
         base.__init__(self, **kwargs)
 
     def export_feature(self, f, **kwargs):
 
         f = base.export_feature(self, f, **kwargs)
-        json.dump(f, os.stdout, indent=2)
+        self.encoder.encode_feature(f, sys.stdout)
 
 class flatfile(base):
 
