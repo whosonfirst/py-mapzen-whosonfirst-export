@@ -36,6 +36,24 @@ if __name__ == "__main__":
         ex.export_feature(f)
 ```
 
+### Export records to a string
+
+```
+import os
+import sys
+
+import mapzen.whosonfirst.utils
+import mapzen.whosonfirst.export
+
+if __name__ == "__main__":
+
+    ex = mapzen.whosonfirst.export.string()
+
+    for path in sys.argv[1:]:
+        f = mapzen.whosonfirst.utils.load_file(path)
+        print ex.export_feature(f)
+```
+
 ### Export records to a nested directory structure
 
 ```
