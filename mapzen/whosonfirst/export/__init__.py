@@ -13,7 +13,7 @@ import shapely.geometry
 import random
 import atomicwrites
 
-import StringIO
+import cStringIO
 import edtf
 import arrow
 
@@ -391,6 +391,19 @@ class stdout(base):
     def export_feature(self, f, **kwargs):
         f = self.prepare_feature(f, **kwargs)
         self.write_feature(f, sys.stdout)
+
+class string(base):
+
+    def __init__(self, **kwargs):
+        base.__init__(self, **kwargs)
+
+    def export_feature(self, f, **kwargs):
+        f = self.prepare_feature(f, **kwargs)
+
+        fh = cStringIO.StringIO()
+        self.write_feature(f, fh)
+
+        return unicode(fh.getvalue())
 
 class flatfile(base):
 
