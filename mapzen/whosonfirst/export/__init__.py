@@ -1,4 +1,3 @@
-import types
 import time
 import sys
 import re
@@ -13,7 +12,7 @@ import shapely.geometry
 import random
 import atomicwrites
 
-import cStringIO
+import io
 import edtf
 import arrow
 
@@ -55,7 +54,7 @@ class base:
 
             try:
                 data = geojson.load(fh)
-            except Exception, e:
+            except Exception as e:
                 logging.error("Failed to load JSON for %s, because" % (path, e))
                 return False
 
@@ -85,7 +84,7 @@ class base:
 
         wofid = None
 
-        if props.has_key('wof:id'):
+        if 'wof:id' in props:
             wofid = props['wof:id']
 
         if wofid == None:
@@ -136,7 +135,7 @@ class base:
                 is_current = 1
             else:
                 is_current = -1
-                
+
             props['mz:is_current'] = is_current
 
         # ensure 'wof:repo'
@@ -157,14 +156,14 @@ class base:
             # section 5.2.2 (EDTF) - this appears to have changed to 'XXXX' as of
             # the draft sent to ISO (201602) but we're just going to wait...
 
-            if not props.has_key(k):
-                props[k] = u"uuuu"
+            if k not in props:
+                props[k] = "uuuu"
 
             # my bad - just adding it here in advance of a proper
             # backfill (20160107/thisisaaronland)
 
             if props.get(k) == "u":
-                props[k] = u"uuuu"
+                props[k] = "uuuu"
 
         # now we try to append upper/lower ranges for inception and cessation
         # dates - specifically plain vanilla YMD values that can be indexed by
@@ -175,49 +174,49 @@ class base:
         # cares why it's just kind of... bad (20180503/thisisaaronland)
 
         inception = props.get("edtf:inception", "")
-        cessation = props.get("edtf:cessation", "")        
+        cessation = props.get("edtf:cessation", "")
 
         fmt = "YYYY-MM-DD"
 
         # skip "uuuu" because it resolves to 0001-01-01 9999-12-31 (in edtf.py land)
-        
+
         if not inception in ("", "uuuu"):
             try:
-            
-                e = edtf.parse_edtf(unicode(inception))
+
+                e = edtf.parse_edtf(str(inception))
 
                 lower = arrow.get(e.lower_strict())
                 upper = arrow.get(e.upper_strict())
-                
+
                 props["date:inception_lower"] = lower.format(fmt)
                 props["date:inception_upper"] = upper.format(fmt)
 
-            except Exception, e:
+            except Exception as e:
                 logging.warning("Failed to parse inception '%s' because %s" % (inception, e))
 
-            if not cessation in ("", "uuuu", "open"):                
+            if not cessation in ("", "uuuu", "open"):
 
                 # we'll never get here because of the test above but the point
                 # is a) edtf.py freaks out when an edtf string is just "open" (not
                 # sure if this is a me-thing or a them-thing and b) edtf.py interprets
                 # "open" as "today" which is not what we want to store in the database
                 # (20180418/thisisaaronland)
-                
+
                 if cessation == "open" and not inception in ("", "uuuu"):
                     cessation = "%s/open" % inception
-                
-                try:                
-                    e = edtf.parse_edtf(unicode(cessation))
+
+                try:
+                    e = edtf.parse_edtf(str(cessation))
 
                     lower = arrow.get(e.lower_strict())
                     upper = arrow.get(e.upper_strict())
-                    
+
                     props["date:cessation_lower"] = lower.format(fmt)
                     props["date:cessation_upper"] = upper.format(fmt)
 
-                except Exception, e:
+                except Exception as e:
                     logging.warning("Failed to parse cessation '%s' because %s" % (cessation, e))
-                    
+
         # end of edtf stuff
 
         # ensure hierarchy contains self
@@ -236,7 +235,7 @@ class base:
 
         for h in props['wof:hierarchy']:
 
-            for ignore, id in h.items():
+            for ignore, id in list(h.items()):
 
                 if id != wofid and id != -1 and not id in belongsto:
                     belongsto.append(id)
@@ -265,15 +264,15 @@ class base:
 
         # names - ensure they are lists
 
-        for k, v in props.items():
+        for k, v in list(props.items()):
 
             if not k.startswith("name:"):
                 continue
 
-            if type(v) == types.ListType:
+            if type(v) == list:
                 continue
 
-            if type(v) == types.TupleType:
+            if type(v) == tuple:
                 props[k] = list(v)
                 continue
 
@@ -282,13 +281,13 @@ class base:
             # We will keep doing that until we don't...
             # (20160524/thisisaaronland)
 
-            if type(v) == types.UnicodeType:
+            if type(v) == str:
 
                 props[k] = v.split(";")
                 continue
 
-            if type(v) == types.StringType:
-                v = unicode(v)
+            if type(v) == bytes:
+                v = str(v)
                 props[k] = v.split(";")
                 continue
 
@@ -300,10 +299,10 @@ class base:
 
         try:
             shp = shapely.geometry.asShape(f['geometry'])
-        except Exception, e:
+        except Exception as e:
             path = self.feature_path(f)
             logging.error("feature (%s) has a bunk geoemtry!" % path)
-            raise Exception, e
+            raise Exception(e)
 
         bbox = list(shp.bounds)
         coords = shp.centroid
@@ -321,9 +320,9 @@ class base:
 
         if not f['geometry']['type'] in to_skip:
             try:
-                
+
                 # From Kelso (21060722/thisisaaronland)
-                # 
+                #
                 # Global" equal area projection: http://spatialreference.org/ref/epsg/3410/
                 # if you wanted to get super geeky for the poles, you’d do this one above 86°: http://spatialreference.org/ref/epsg/3408/
                 # and this one below -86°: http://spatialreference.org/ref/epsg/3409/
@@ -333,47 +332,47 @@ class base:
                 # gridded data, specifically remotely sensed data, although it has gained popularity as a common gridding scheme for other
                 # data as well. Data from various sources can be expressed as digital arrays of varying grid resolutions, which are defined
                 # in relation to one of three possible projections: Northern and Southern Hemisphere (Lambert's equal-area, azimuthal) and
-                # full global (cylindrical, Show more... 
+                # full global (cylindrical, Show more...
                 # It’s known as "Cylindrical Equal-Area”, but I guess it’s called the other thing in EPSG because that agency was the first
                 # one to add it under their own product name. </sigh>
                 # https://nsidc.org/data/atlas/epsg_3410.html
-                
+
                 from osgeo import ogr
                 from osgeo import osr
-                
+
                 source = osr.SpatialReference()
                 source.ImportFromEPSG(4326)
-                
+
                 target = osr.SpatialReference()
                 target.ImportFromEPSG(3410)
-                
+
                 transform = osr.CoordinateTransformation(source, target)
-                
+
                 poly = ogr.CreateGeometryFromJson(geojson.dumps(f['geometry']))
                 poly.Transform(transform)
-                
+
                 sq_m = format(poly.GetArea(), 'f')
                 props['geom:area_square_m'] = float(sq_m)
-                
-            except Exception, e:
+
+            except Exception as e:
                 logging.warning("failed to calculate area in square meters, because %s" % e)
 
         # end of osgeo stuff
-        
+
         f['bbox'] = bbox
 
         # ensure that all properties are prefixed
 
-        for k, v in props.items():
+        for k, v in list(props.items()):
 
             parts = k.split(":", 1)
 
             if len(parts) == 2:
                 continue
-            
+
             old_k = k
             new_k = "misc:%s" % parts[0]
-        
+
             props[new_k] = v
             del(props[old_k])
 
@@ -400,10 +399,10 @@ class string(base):
     def export_feature(self, f, **kwargs):
         f = self.prepare_feature(f, **kwargs)
 
-        fh = cStringIO.StringIO()
+        fh = io.StringIO()
         self.write_feature(f, fh)
 
-        return unicode(fh.getvalue())
+        return str(fh.getvalue())
 
 class flatfile(base):
 
@@ -488,11 +487,11 @@ class flatfile(base):
                 base.write_feature(self, f, fh)
                 # self.encoder.encode_feature(f, fh)
 
-        except Exception, e:
+        except Exception as e:
             logging.error("failed to write %s, because %s" % (path, e))
             return None
 
-        perms = kwargs.get('perms', 0644)
+        perms = kwargs.get('perms', 0o644)
 
         if perms != None:
             os.chmod(path, perms)
@@ -523,7 +522,7 @@ class flatfile(base):
         # (20160112/thisisaaronland)
 
         if wofid == None:
-            raise Exception, "Missing WOF ID"
+            raise Exception("Missing WOF ID")
 
         fname = u.id2fname(wofid, **kwargs)
         parent = u.id2path(wofid)
