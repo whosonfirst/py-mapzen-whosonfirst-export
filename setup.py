@@ -30,6 +30,7 @@ setup(
         'edtf',
         'geojson',
         'requests',
+        'shapely',
     ],
     packages=packages,
     scripts=[
