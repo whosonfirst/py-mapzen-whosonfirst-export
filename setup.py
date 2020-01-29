@@ -24,6 +24,13 @@ setup(
     description='Simple Python wrapper for managing Who\'s On First export-related functions',
     author='Mapzen',
     url='https://github.com/whosonfirst/py-mapzen-whosonfirst-export',
+    install_requires=[
+        'arrow',
+        'atomicwrites',
+        'edtf',
+        'geojson',
+        'requests',
+    ],
     packages=packages,
     scripts=[
         'scripts/wof-exportify',
