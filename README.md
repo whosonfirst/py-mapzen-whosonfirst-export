@@ -17,7 +17,7 @@ guide (specifically that GeoJSON properties but _not_ geometries be indented).
 ## Install
 
 ```
-sudo pip install -r requirements.txt --process-dependency-links .
+sudo pip install -r requirements.txt .
 ```
 
 ### Caveats
